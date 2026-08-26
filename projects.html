@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Projects — Akintunde Ojutiku</title>
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="brand" href="index.html">Akintunde Ojutiku</a>
+    <div class="links">
+      <a href="index.html">About</a>
+      <a href="projects.html">Projects</a>
+      <a href="index.html#experience">Experience</a>
+      <a href="assets/cv/Ojutiku_CV.pdf" target="_blank" rel="noopener">CV (PDF)</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:24px;">
+  <div class="wrap">
+    <h1 style="margin-bottom:6px;">Projects</h1>
+    <p class="summary">
+      Selected work in machine learning, NLP, and production ML systems. Each project page
+      renders straight from that project's <code>README.md</code> — same as GitHub — so you
+      can add screenshots, videos, or an embedded live demo directly there.
+    </p>
+  </div>
+</header>
+
+<section class="block">
+  <div class="wrap">
+    <div class="project-grid">
+
+      <article class="project-card">
+        <div class="date">08.2025 – 03.2026 · Master's Thesis</div>
+        <h3><a href="projects/xlstm-protein/">xLSTM for Bi-Directional Protein Language Modelling</a></h3>
+        <p>Bi-directional protein language modelling with xLSTM under resource constraints.</p>
+        <div class="tag-row"><span class="tag">xLSTM</span><span class="tag">PyTorch</span><span class="tag">NLP</span></div>
+      </article>
+
+      <article class="project-card">
+        <div class="date">Updated 2026</div>
+        <h3><a href="projects/multimodal-retrieval/">Production Multimodal Retrieval Recommender System</a></h3>
+        <p>Kubernetes retrieval pipeline for text, audio, and video, combining LLM embeddings with RAG.</p>
+        <div class="tag-row"><span class="tag">Kubernetes</span><span class="tag">RAG</span><span class="tag">LLM</span></div>
+      </article>
+
+      <article class="project-card">
+        <div class="date">10.2024 – 06.2025 · AI Practical Work, JKU</div>
+        <h3><a href="projects/tinystories/">TinyStories — Small Language Models, Big Potential</a></h3>
+        <p>Small language models trained on a synthetic corpus for ages 3–9, generating coherent text under 10M parameters.</p>
+        <div class="tag-row"><span class="tag">Small LMs</span><span class="tag">Synthetic Data</span></div>
+      </article>
+
+      <article class="project-card">
+        <div class="date">10.2023 – 03.2024 · JKU</div>
+        <h3><a href="projects/ml-decision-evidence/">AI for ML Model Decision Evidence</a></h3>
+        <p>Translating ML predictions into visual evidence for technical and non-technical teams.</p>
+        <div class="tag-row"><span class="tag">Explainability</span><span class="tag">Visualisation</span></div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    © <span id="year"></span> Akintunde Ojutiku · Built with plain HTML/CSS/JS · Hosted on GitHub Pages
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
