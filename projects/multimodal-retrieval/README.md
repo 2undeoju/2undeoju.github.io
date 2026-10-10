@@ -4,9 +4,6 @@ A production-style **multimodal retrieval system** covering text, audio, and vid
 built and deployed as a Kubernetes retrieval pipeline that combines LLM embeddings with
 Retrieval-Augmented Generation (RAG).
 
-> Replace this paragraph with what the system actually does end-to-end: what a user
-> queries, what gets retrieved, and how the answer is generated/returned.
-
 ## Architecture
 
 Describe the pipeline stages, e.g.:
@@ -45,7 +42,7 @@ an `<iframe>` in `index.html`. To use it:
 
 ## Tech stack
 
-`Kubernetes` · `RAG` · `LLM embeddings` · `Python` · (add your vector DB, framework, etc.)
+`Kubernetes` · `RAG` · `LLM embeddings` · `Python` · `Docker`
 
 ## Links
 
