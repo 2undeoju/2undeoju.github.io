@@ -487,3 +487,5 @@ footer { padding: 40px 0 60px; color: var(--text-muted); font-size: 0.85rem; }
 .term .g { display: inline-block; width: 1ch; overflow: visible; font-size: 0.85em; line-height: 1; }
 .project-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 620px) { .project-grid.two { grid-template-columns: 1fr; } }
+.project-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { .project-grid.three { grid-template-columns: 1fr; } }
