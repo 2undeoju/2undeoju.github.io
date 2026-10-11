@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Akintunde Ojutiku — AI Specialist</title>
-<meta name="description" content="Portfolio and CV of Akintunde Ojutiku, AI specialist building ML models and dependable data pipelines." />
+<title>Akintunde Ojutiku — AI Engineer</title>
+<meta name="description" content="Akintunde Ojutiku, AI Engineer in Linz. I build AI systems that respect user permissions and cite their source or refuse to answer." />
+<meta property="og:title" content="Akintunde Ojutiku — AI Engineer" />
+<meta property="og:description" content="AI systems that respect user permissions and cite their source or refuse to answer." />
+<meta property="og:image" content="assets/img/avatar.jpg" />
 <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
@@ -23,36 +26,127 @@
 
 <header class="hero">
   <div class="wrap hero-inner">
-    <img class="hero-photo" src="assets/img/avatar.jpg" alt="Portrait of Akintunde Ojutiku" />
+    <img class="hero-photo" src="assets/img/avatar.jpg" alt="Portrait of Akintunde Ojutiku" width="148" height="148" />
     <div>
-      <h1>Akintunde Ojutiku, M.Sc.</h1>
-      <div class="role">AI Specialist — ML Models &amp; Data Pipelines</div>
+      <h1>Akintunde Ojutiku</h1>
+      <div class="role">AI Engineer, M.Sc. in Artificial Intelligence (JKU Linz)</div>
+      <p class="lede">I build AI systems that respect user permissions and cite their source, or refuse to answer.</p>
       <div class="meta">Linz, Austria &nbsp;·&nbsp; <a href="mailto:aojutiku@live.com">aojutiku@live.com</a> &nbsp;·&nbsp; <a href="tel:+436606366659">+43 660 636 6659</a></div>
-      <div class="meta">Work Permit: Red-White-Red Card Plus (valid Dec. 2028)</div>
-      <p class="summary">
-        <strong>AI specialist</strong> with experience building and scaling ML models and
-        <strong>dependable data pipelines</strong>. Focused on delivering stable, efficient AI
-        systems in production through clear collaboration and strong quality standards.
-      </p>
+      <div class="meta">Work permit: Red-White-Red Card Plus, valid until Dec. 2028</div>
       <div class="button-row">
-        <a class="btn primary" href="https://github.com/2undeoju" target="_blank" rel="noopener">GitHub ↗</a>
-        <a class="btn" href="https://www.linkedin.com/in/tunde-ojutiku-7349b781" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a class="btn primary" href="projects/AI-as-a-Service/">See the AI-as-a-Service Layer</a>
         <a class="btn" href="assets/cv/Ojutiku_CV.pdf" target="_blank" rel="noopener">Download CV</a>
+        <a class="btn" href="https://github.com/2undeoju" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="btn" href="https://www.linkedin.com/in/tunde-ojutiku-7349b781" target="_blank" rel="noopener">LinkedIn ↗</a>
       </div>
     </div>
   </div>
 </header>
+
+<section class="block" id="approach">
+  <div class="wrap">
+    <h2 class="section-title">How I build AI systems</h2>
+    <p class="section-intro">One request, end to end, through the AI-as-a-Service Layer I designed and built. Every stage below exists in code, and each rule is held in place by a test.</p>
+
+    <figure data-arch></figure>
+    <noscript><p class="note">The animated walk-through needs JavaScript. The <a href="projects/AI-as-a-Service/media/architecture-deck.html">architecture deck</a> shows the same design.</p></noscript>
+
+    <div class="principles">
+      <div class="principle">
+        <h3>Permission before retrieval</h3>
+        <p>Data a user may not see is never fetched, so there is nothing to scrub afterwards. The access filter lives inside the retrieval query itself.</p>
+        <div class="proof">Proven by <code>test_<wbr>another_<wbr>programme_<wbr>is_<wbr>never_<wbr>retrieved</code></div>
+      </div>
+      <div class="principle">
+        <h3>Cite or refuse</h3>
+        <p>The model writes sentences; tools compute the numbers. If an answer states a figure no tool produced, the whole answer is refused, not trimmed.</p>
+        <div class="proof">Proven by <code>test_<wbr>an_<wbr>invented_<wbr>number_<wbr>is_<wbr>refused_<wbr>not_<wbr>trimmed</code></div>
+      </div>
+      <div class="principle">
+        <h3>Tested like software</h3>
+        <p>A golden set of 16 cases runs in CI next to 75 unit tests. A lost citation or a lost refusal blocks the merge.</p>
+        <div class="proof">Proven by <code>test_<wbr>the_<wbr>whole_<wbr>golden_<wbr>set_<wbr>passes</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="work">
+  <div class="wrap">
+    <h2 class="section-title">Selected work</h2>
+
+    <article class="featured">
+      <div class="date">08.2026 · Independent project</div>
+      <h3><a href="projects/AI-as-a-Service/">AI-as-a-Service Layer</a></h3>
+      <p>An app-agnostic AI platform for universities. Any app reaches five capabilities through one contract, and every answer is permission-scoped, cited and checked before it leaves.</p>
+      <div class="facts">Python, FastAPI, Pydantic, hybrid retrieval, MCP. Runs fully offline with deterministic stand-ins, so every test is repeatable.</div>
+      <div class="tag-row" style="margin-top:12px;"><span class="tag">RAG</span><span class="tag">MCP</span><span class="tag">FastAPI</span><span class="tag">Evaluation</span><span class="tag">Access control</span></div>
+      <div class="button-row">
+        <a class="btn primary" href="projects/AI-as-a-Service/">Read the case study</a>
+        <a class="btn" href="projects/AI-as-a-Service/media/architecture-deck.html" target="_blank" rel="noopener">Open the architecture deck ↗</a>
+      </div>
+    </article>
+
+    <div class="project-grid">
+      <article class="project-card">
+        <div class="date">Updated 2026</div>
+        <h3><a href="projects/multimedia-retrieval-recommender/">Multimedia Retrieval &amp; Recommender System</a></h3>
+        <p>A retrieval and recommender pipeline for text, audio and video using LLM embeddings, deployed on Kubernetes.</p>
+        <div class="tag-row"><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">CI/CD</span></div>
+      </article>
+      <article class="project-card">
+        <div class="date">08.2025 – 03.2026 · Master's thesis</div>
+        <h3><a href="projects/xlstm-protein/">xLSTM for Bi-directional Protein Language Modelling</a></h3>
+        <p>Can an LSTM-style architecture match a Transformer on protein sequences under identical, tight compute?</p>
+        <div class="tag-row"><span class="tag">xLSTM</span><span class="tag">PyTorch</span><span class="tag">Protein LMs</span></div>
+      </article>
+    </div>
+    <a class="more-link" href="projects.html">All projects</a>
+  </div>
+</section>
+
+<section class="block" id="stack">
+  <div class="wrap">
+    <h2 class="section-title">Tech stack</h2>
+    <dl class="skills-grid">
+      <div class="skill-row">
+        <dt>AI &amp; LLM architectures</dt>
+        <dd><div class="tag-row"><span class="tag">RAG pipelines</span><span class="tag">Hybrid search (dense + BM25, RRF)</span><span class="tag">MCP</span><span class="tag">PydanticAI</span><span class="tag">LiteLLM</span><span class="tag">LangChain</span></div></dd>
+      </div>
+      <div class="skill-row">
+        <dt>Backend</dt>
+        <dd><div class="tag-row"><span class="tag">Python</span><span class="tag">FastAPI</span><span class="tag">PostgreSQL + pgvector</span><span class="tag">Redis</span><span class="tag">REST / OpenAPI</span><span class="tag">Row-level access control</span><span class="tag">Java</span></div></dd>
+      </div>
+      <div class="skill-row">
+        <dt>Evaluation &amp; guardrails</dt>
+        <dd><div class="tag-row"><span class="tag">Golden-set evals</span><span class="tag">Groundedness &amp; citation gating</span><span class="tag">Typed contracts (Pydantic)</span><span class="tag">pytest</span><span class="tag">OpenTelemetry GenAI tracing</span></div></dd>
+      </div>
+      <div class="skill-row">
+        <dt>Cloud &amp; DevOps</dt>
+        <dd><div class="tag-row"><span class="tag">Microsoft Azure</span><span class="tag">AWS</span><span class="tag">Databricks</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Linux</span><span class="tag">CI/CD</span></div></dd>
+      </div>
+      <div class="skill-row">
+        <dt>Machine learning</dt>
+        <dd><div class="tag-row"><span class="tag">PyTorch</span><span class="tag">Transformers</span><span class="tag">xLSTM</span><span class="tag">CNN / RNN</span><span class="tag">XGBoost</span><span class="tag">Deep RL (PPO, DQN)</span><span class="tag">Computer vision</span></div></dd>
+      </div>
+      <div class="skill-row">
+        <dt>Governance &amp; compliance</dt>
+        <dd><div class="tag-row"><span class="tag">EU AI Act</span><span class="tag">GDPR data governance</span></div></dd>
+      </div>
+    </dl>
+  </div>
+</section>
 
 <section class="block" id="experience">
   <div class="wrap">
     <h2 class="section-title">Experience</h2>
 
     <div class="timeline-item">
-      <div class="timeline-date">11.2021 – Present</div>
+      <div class="timeline-date">01.2025 – present</div>
       <div class="timeline-content">
-        <h3>Operations Specialist</h3>
-        <div class="org">IKEA, Haid</div>
-        <p>Assisting cross-functional teams and applying Lean processes across the fulfilment and product lifecycle for quality delivery.</p>
+        <h3>AI Engineer</h3>
+        <div class="org">Alexio Corporation, Canada (remote)</div>
+        <p>Developed AI backend services integrating LLMs, APIs, RAG pipelines and tool calling. Implemented secure AI workflows with access control, error handling, evaluation and monitoring for reliable production use.</p>
       </div>
     </div>
 
@@ -61,16 +155,16 @@
       <div class="timeline-content">
         <h3>Practical Work</h3>
         <div class="org">Johannes Kepler University, Linz</div>
-        <p>TinyStories project (Microsoft Research): developed and evaluated compact LLMs trained on constrained child-level corpora. See <a href="projects/tinystories/">project page</a>.</p>
+        <p>TinyStories project (Microsoft Research): developed and evaluated compact LLMs trained on constrained child-level corpora. See the <a href="projects/tinystories/">project page</a>.</p>
       </div>
     </div>
 
     <div class="timeline-item">
-      <div class="timeline-date">02.2014 – 03.2016</div>
+      <div class="timeline-date">11.2021 – present</div>
       <div class="timeline-content">
-        <h3>Data Scientist</h3>
-        <div class="org">University of Calabar, Nigeria</div>
-        <p>Supported data governance and privacy compliance across faculties, managing core data infrastructure and ensuring reliable access to institutional datasets.</p>
+        <h3>Operations Specialist (part-time)</h3>
+        <div class="org">IKEA, Haid</div>
+        <p>Assisting cross-functional teams and applying Lean processes across the fulfilment and product lifecycle for quality delivery.</p>
       </div>
     </div>
 
@@ -84,11 +178,11 @@
     </div>
 
     <div class="timeline-item">
-      <div class="timeline-date">03.2017 – 08.2020</div>
+      <div class="timeline-date">02.2014 – 03.2016</div>
       <div class="timeline-content">
-        <h3>Logistics Assistant</h3>
-        <div class="org">PNP-ExCom, Passau</div>
-        <p>Provided operational support alongside graduate studies.</p>
+        <h3>Data Scientist</h3>
+        <div class="org">University of Calabar, Nigeria</div>
+        <p>Supported data governance and privacy compliance across faculties, managing core data infrastructure and ensuring reliable access to institutional datasets.</p>
       </div>
     </div>
   </div>
@@ -97,123 +191,63 @@
 <section class="block" id="education">
   <div class="wrap">
     <h2 class="section-title">Education</h2>
-
     <div class="timeline-item">
       <div class="timeline-date">10.2021 – 03.2026</div>
       <div class="timeline-content">
-        <h3>Master's in Artificial Intelligence</h3>
-        <div class="org">Johannes Kepler University</div>
-        <p>Machine Learning and Perception · AI for Simulation</p>
+        <h3>M.Sc. in Artificial Intelligence</h3>
+        <div class="org">Johannes Kepler University, Linz</div>
+        <p>Machine Learning and Perception, AI for Simulation. Thesis: <a href="projects/xlstm-protein/">xLSTM for bi-directional protein modelling under resource constraints</a>.</p>
       </div>
     </div>
-
     <div class="timeline-item">
       <div class="timeline-date">10.2016 – 09.2019</div>
       <div class="timeline-content">
-        <h3>Master's in Development Studies</h3>
+        <h3>M.A. in Development Studies</h3>
         <div class="org">University of Passau, Germany</div>
-        <p>Sustainability and Resources · Sociology and Politics</p>
+        <p>Sustainability and Resources, Sociology and Politics</p>
       </div>
     </div>
-
     <div class="timeline-item">
       <div class="timeline-date">09.2009 – 03.2014</div>
       <div class="timeline-content">
-        <h3>Bachelor's in Demography and Statistics</h3>
+        <h3>B.Sc. in Demography and Statistics</h3>
         <div class="org">Obafemi Awolowo University, Ile-Ife, Nigeria</div>
-        <p>Demography · Statistics</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="block" id="skills">
+<section class="block" id="more">
   <div class="wrap">
-    <h2 class="section-title">Skills</h2>
     <dl class="skills-grid">
       <div class="skill-row">
-        <dt>Soft Skills</dt>
-        <dd><div class="tag-row"><span class="tag">Good Communication</span><span class="tag">Leadership by Example</span><span class="tag">Problem Solving</span><span class="tag">Team Collaboration</span></div></dd>
+        <dt>Publication</dt>
+        <dd>xLSTM for Bi-directional Protein Modelling under Resource Constraints. Hochschulschriften, Johannes Kepler University, 2026.</dd>
       </div>
       <div class="skill-row">
-        <dt>Backend</dt>
-        <dd><div class="tag-row"><span class="tag">FastAPI</span></div></dd>
+        <dt>Languages</dt>
+        <dd>English (native), German (B2)</dd>
       </div>
       <div class="skill-row">
-        <dt>Cloud &amp; Big Data</dt>
-        <dd><div class="tag-row"><span class="tag">Databricks</span><span class="tag">Microsoft Azure</span><span class="tag">AWS</span></div></dd>
+        <dt>Certifications</dt>
+        <dd>International Project Management, University of Passau<br />Authentic Leadership, University of Passau<br />Lean Six Sigma Yellow Belt, Technical University of Munich</dd>
       </div>
       <div class="skill-row">
-        <dt>Computer Vision</dt>
-        <dd><div class="tag-row"><span class="tag">3D Reconstruction</span><span class="tag">Optical Flow</span><span class="tag">Detection &amp; Segmentation</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>Generative AI</dt>
-        <dd><div class="tag-row"><span class="tag">RAG</span><span class="tag">LangChain</span><span class="tag">OpenAI</span><span class="tag">Llama</span><span class="tag">Anthropic</span><span class="tag">Vector DB</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>ML Architectures</dt>
-        <dd><div class="tag-row"><span class="tag">CNN</span><span class="tag">RNN</span><span class="tag">xLSTM</span><span class="tag">Transformers</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>DevOps</dt>
-        <dd><div class="tag-row"><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Linux</span><span class="tag">CI/CD</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>Programming</dt>
-        <dd><div class="tag-row"><span class="tag">Python</span><span class="tag">Java</span><span class="tag">PyTorch</span><span class="tag">PostgreSQL + pgvector</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>Supervised ML</dt>
-        <dd><div class="tag-row"><span class="tag">Classification</span><span class="tag">Regression</span><span class="tag">XGBoost</span><span class="tag">SVM</span><span class="tag">Random Forests</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>Unsupervised ML</dt>
-        <dd><div class="tag-row"><span class="tag">Clustering</span><span class="tag">PCA</span><span class="tag">ICA</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>Visualisation</dt>
-        <dd><div class="tag-row"><span class="tag">Tableau</span><span class="tag">Power BI</span></div></dd>
-      </div>
-      <div class="skill-row">
-        <dt>Deep RL</dt>
-        <dd><div class="tag-row"><span class="tag">PPO</span><span class="tag">DQN</span></div></dd>
+        <dt>Working style</dt>
+        <dd>Clear communication, leadership by example, problem solving, team collaboration</dd>
       </div>
     </dl>
   </div>
 </section>
 
-<section class="block" id="certifications">
-  <div class="wrap">
-    <h2 class="section-title">Certifications &amp; Languages</h2>
-    <div class="skills-grid">
-      <div class="skill-row">
-        <dt>Certifications</dt>
-        <dd>
-          International Project Management — University of Passau<br />
-          Authentic Leadership — University of Passau<br />
-          Lean Six Sigma Yellow Belt — Technical University of Munich
-        </dd>
-      </div>
-      <div class="skill-row">
-        <dt>Languages</dt>
-        <dd>English — Native<br />German — B2</dd>
-      </div>
-      <div class="skill-row">
-        <dt>Publications</dt>
-        <dd>xLSTM for Bi-directional Protein Modelling under Resource Constraints — Hochschulschriften, Johannes Kepler University</dd>
-      </div>
-    </div>
-  </div>
-</section>
-
 <footer>
   <div class="wrap">
-    © <span id="year"></span> Akintunde Ojutiku · Built with plain HTML/CSS/JS · Hosted on GitHub Pages
+    © <span id="year"></span> Akintunde Ojutiku · <a href="mailto:aojutiku@live.com">aojutiku@live.com</a> · Built with plain HTML, CSS and JS, hosted on GitHub Pages
   </div>
 </footer>
 
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 <script src="assets/js/main.js"></script>
+<script src="assets/js/arch.js"></script>
 </body>
 </html>

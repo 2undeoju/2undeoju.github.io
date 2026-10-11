@@ -23,20 +23,28 @@
 <header class="hero" style="padding-bottom:24px;">
   <div class="wrap">
     <h1 style="margin-bottom:6px;">Projects</h1>
-    <p class="summary">
-      Selected work in machine learning, NLP, and production ML systems. Each project page
-      renders straight from that project's <code>README.md</code> — same as GitHub — so you
-      can add screenshots, videos, or an embedded live demo directly there.
-    </p>
+    <p class="summary">Selected work in AI systems, language models and production ML.</p>
   </div>
 </header>
 
 <section class="block">
   <div class="wrap">
-    <div class="project-grid">
+
+    <article class="featured">
+      <div class="date">08.2026 · Independent project</div>
+      <h3><a href="projects/AI-as-a-Service/">AI-as-a-Service Layer</a></h3>
+      <p>An app-agnostic AI platform for universities: permission-scoped retrieval, deterministic tools over MCP, task-based model routing, and answers that cite their source or refuse.</p>
+      <div class="tag-row"><span class="tag">Python</span><span class="tag">FastAPI</span><span class="tag">RAG</span><span class="tag">MCP</span><span class="tag">Evaluation</span></div>
+      <div class="button-row">
+        <a class="btn primary" href="projects/AI-as-a-Service/">Read the case study</a>
+        <a class="btn" href="projects/AI-as-a-Service/media/architecture-deck.html" target="_blank" rel="noopener">Open the architecture deck ↗</a>
+      </div>
+    </article>
+
+    <div class="project-grid two">
 
       <article class="project-card">
-        <div class="date">08.2025 – 03.2026 · Master's Thesis</div>
+        <div class="date">08.2025 – 03.2026 · Master's thesis</div>
         <h3><a href="projects/xlstm-protein/">xLSTM for Bi-Directional Protein Language Modelling</a></h3>
         <p>Bi-directional protein language modelling with xLSTM under resource constraints.</p>
         <div class="tag-row"><span class="tag">xLSTM</span><span class="tag">PyTorch</span><span class="tag">NLP</span></div>
@@ -44,30 +52,23 @@
 
       <article class="project-card">
         <div class="date">Updated 2026</div>
-        <h3><a href="projects/multimodal-retrieval/">Production Multimodal Retrieval Recommender System</a></h3>
-        <p>Kubernetes retrieval pipeline for text, audio, and video, combining LLM embeddings with RAG.</p>
-        <div class="tag-row"><span class="tag">Kubernetes</span><span class="tag">RAG</span><span class="tag">LLM</span></div>
+        <h3><a href="projects/multimedia-retrieval-recommender/">Multimedia Retrieval &amp; Recommender System</a></h3>
+        <p>A retrieval and recommender pipeline for text, audio and video using LLM embeddings, deployed on Kubernetes.</p>
+        <div class="tag-row"><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">CI/CD</span></div>
+      </article>
+
+      <article class="project-card">
+        <div class="date">09.2026 · Independent project</div>
+        <h3><a href="projects/reasontrace/">ReasonTrace</a></h3>
+        <p>Evaluates the reasoning, not just the result. Shows exactly where a student's thinking is strong or breaks down.</p>
+        <div class="tag-row"><span class="tag">LangChain</span><span class="tag">FastAPI</span><span class="tag">Reasoning evaluation</span></div>
       </article>
 
       <article class="project-card">
         <div class="date">10.2024 – 06.2025 · AI Practical Work, JKU</div>
-        <h3><a href="projects/tinystories/">TinyStories — Small Language Models, Big Potential</a></h3>
+        <h3><a href="projects/tinystories/">TinyStories: Small Language Models, Big Potential</a></h3>
         <p>Small language models trained on a synthetic corpus for ages 3–9, generating coherent text under 10M parameters.</p>
-        <div class="tag-row"><span class="tag">Small LMs</span><span class="tag">Synthetic Data</span></div>
-      </article>
-
-      <article class="project-card">
-        <div class="date">10.2023 – 03.2024 · JKU</div>
-        <h3><a href="projects/ml-decision-evidence/">AI for ML Model Decision Evidence</a></h3>
-        <p>Translating ML predictions into visual evidence for technical and non-technical teams.</p>
-        <div class="tag-row"><span class="tag">Explainability</span><span class="tag">Visualisation</span></div>
-      </article>
-
-      <article class="project-card">
-        <div class="date">09.2026 · Independent Project</div>
-        <h3><a href="projects/reasontrace/">ReasonTrace</a></h3>
-        <p>Evaluates the reasoning, not just the result. Understand exactly where a student's thinking is strong or breaks down.</p>
-        <div class="tag-row"><span class="tag">LangChain</span><span class="tag">FastAPI</span><span class="tag">Reasoning Evaluation</span></div>
+        <div class="tag-row"><span class="tag">Small LMs</span><span class="tag">Synthetic data</span></div>
       </article>
 
     </div>
@@ -76,7 +77,7 @@
 
 <footer>
   <div class="wrap">
-    © <span id="year"></span> Akintunde Ojutiku · Built with plain HTML/CSS/JS · Hosted on GitHub Pages
+    © <span id="year"></span> Akintunde Ojutiku · <a href="mailto:aojutiku@live.com">aojutiku@live.com</a> · Built with plain HTML, CSS and JS, hosted on GitHub Pages
   </div>
 </footer>
 
