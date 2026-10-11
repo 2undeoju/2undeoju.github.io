@@ -1,0 +1,2672 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-as-a-Service Layer — Akintunde Ojutiku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@450;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F5; --deck:#FFFFFF; --surf:#F3F7FA; --surf2:#E7EEF4;
+  --line:#D7E1E9; --line2:#BAC8D6;
+  --ink:#131D27; --ink2:#4F5F6E; --ink3:#7A8998;
+  --accent:#1F3B57; --accent-bg:#E7F0F7;
+  --s-user:#C2681C; --s-proj:#1E7F76; --s-prog:#6B4FBB; --s-uni:#2E6DA4; --s-glob:#66748A;
+  --ok:#2E8B57; --ok-bg:#E6F4EB;
+  --warn:#9A6A10; --warn-bg:#FBF2DF;
+  --risk:#B5453F; --risk-bg:#FBEAEA;
+  --shadow:0 2px 4px rgba(18,28,38,.05), 0 26px 64px -30px rgba(18,28,38,.36);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#080F17; --deck:#111B24; --surf:#18222C; --surf2:#202E3A;
+  --line:#273541; --line2:#3A4A58;
+  --ink:#E9EFF5; --ink2:#9FB0BE; --ink3:#758697;
+  --accent:#8FB4D9; --accent-bg:#16232E;
+  --s-user:#E0A25E; --s-proj:#54BFB2; --s-prog:#A794E8; --s-uni:#6FA8DC; --s-glob:#93A2B5;
+  --ok:#4FBE8B; --ok-bg:#122320;
+  --warn:#D6A648; --warn-bg:#231D0F;
+  --risk:#E2807A; --risk-bg:#281315;
+  --shadow:0 2px 4px rgba(0,0,0,.35), 0 28px 64px -32px rgba(0,0,0,.85);
+}}
+:root[data-theme="dark"]{
+  --bg:#080F17; --deck:#111B24; --surf:#18222C; --surf2:#202E3A;
+  --line:#273541; --line2:#3A4A58;
+  --ink:#E9EFF5; --ink2:#9FB0BE; --ink3:#758697;
+  --accent:#8FB4D9; --accent-bg:#16232E;
+  --s-user:#E0A25E; --s-proj:#54BFB2; --s-prog:#A794E8; --s-uni:#6FA8DC; --s-glob:#93A2B5;
+  --ok:#4FBE8B; --ok-bg:#122320;
+  --warn:#D6A648; --warn-bg:#231D0F;
+  --risk:#E2807A; --risk-bg:#281315;
+  --shadow:0 2px 4px rgba(0,0,0,.35), 0 28px 64px -32px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Source Sans 3',system-ui,-apple-system,sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:24px 24px 62px;
+}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+
+#stage{ width:100%; max-width:1220px; }
+.slide{
+  container-type:size; position:relative;
+  width:100%; aspect-ratio:16/9;
+  background:var(--deck); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); padding:4cqw 5cqw 3.4cqw;
+  overflow:hidden; display:none; flex-direction:column;
+}
+.slide.on{ display:flex; }
+
+/* ---------- headings ---------- */
+.tag{
+  font-family:'IBM Plex Mono',monospace; font-size:1.42cqw; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink3); margin-bottom:1cqw;
+  display:flex; align-items:center; gap:1cqw;
+}
+.tag::after{ content:""; flex:1; height:1px; background:var(--line); }
+h2{
+  font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800;
+  font-size:6.4cqw; line-height:.98; margin:0 0 .6cqw; text-wrap:balance;
+}
+.sub{
+  font-size:2.5cqw; color:var(--ink2); max-width:52ch;
+  margin:0 0 2.2cqw; line-height:1.3; font-weight:400;
+  letter-spacing:.005em;
+}
+.sub b{ color:var(--ink); font-weight:600; }
+.body{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+.hintline{
+  position:absolute; left:5cqw; bottom:1.9cqw;
+  font-family:'IBM Plex Mono',monospace; font-size:1.2cqw; color:var(--ink3); letter-spacing:.05em;
+}
+
+/* ---------- title slide ---------- */
+.slide.title{ justify-content:center; }
+.slide.title h1{
+  font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800;
+  font-size:8cqw; line-height:.98; margin:0 0 1.4cqw;
+}
+.slide.title .who{ font-size:1.9cqw; color:var(--ink2); line-height:1.5; }
+.rule{ width:11cqw; height:.32cqw; background:var(--accent); border-radius:2px; margin:0 0 2cqw; }
+
+/* ---------- two views of one slide ---------- */
+.viewtabs{ display:flex; gap:.6cqw; margin-bottom:.7cqw; }
+.viewtabs button{
+  font-family:'IBM Plex Mono',monospace; font-size:1.34cqw; letter-spacing:.04em;
+  background:var(--surf); color:var(--ink2); border:1px solid var(--line2);
+  border-radius:99px; padding:.55cqw 1.5cqw; cursor:pointer;
+}
+.viewtabs button:hover{ border-color:var(--accent); color:var(--accent); }
+.viewtabs button.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.viewpane{ display:none; }
+.viewpane.on{ display:block; }
+
+/* ---------- outline ---------- */
+.olist{ display:flex; flex-direction:column; gap:.85cqw; }
+.orow{
+  display:grid; grid-template-columns:5cqw 1fr 5cqw; align-items:center; gap:1.4cqw;
+  background:var(--surf); border:1px solid var(--line); border-left:.4cqw solid var(--accent);
+  border-radius:.7cqw; padding:1.15cqw 1.6cqw; width:100%;
+  cursor:pointer; text-align:left; font-family:inherit; color:inherit;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.orow:hover{ border-color:var(--accent); transform:translateX(.3cqw); }
+.orow:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.orow .n{ font-family:'IBM Plex Mono',monospace; font-size:1.9cqw; color:var(--accent); font-weight:600; }
+.orow .t{ font-family:'Big Shoulders Display',sans-serif; font-weight:700; font-size:3.4cqw; line-height:1; }
+.orow .s{ font-family:'IBM Plex Mono',monospace; font-size:1.4cqw; color:var(--ink3); text-align:right; }
+
+/* ---------- coverage map: task sections beside scoring criteria ---------- */
+.map2{ display:grid; grid-template-columns:1fr 1fr; gap:2.2cqw; align-items:start; }
+.map2 h3{
+  font-family:'IBM Plex Mono',monospace; font-size:1.12cqw; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--ink3); margin:0 0 .8cqw;
+  padding-bottom:.5cqw; border-bottom:1px solid var(--line);
+}
+.map2 h3 b{ color:var(--accent); font-weight:600; }
+.mrow{
+  display:grid; grid-template-columns:2.6cqw 1fr auto; align-items:baseline; gap:.9cqw;
+  background:var(--surf); border:1px solid var(--line); border-left:.3cqw solid var(--accent);
+  border-radius:.5cqw; padding:.62cqw .9cqw; margin-bottom:.5cqw;
+  cursor:pointer; text-align:left; font-family:inherit; color:inherit; width:100%;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.mrow:hover{ border-color:var(--accent); transform:translateX(.2cqw); }
+.mrow:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.mrow .n{ font-family:'IBM Plex Mono',monospace; font-size:1.18cqw; color:var(--accent); font-weight:600; }
+.mrow .t{ font-size:1.55cqw; line-height:1.25; color:var(--ink); font-weight:600; }
+.mrow .t i{ font-style:normal; color:var(--ink3); font-weight:400; font-size:1.3cqw; }
+.mrow .s{ font-family:'IBM Plex Mono',monospace; font-size:1.08cqw; color:var(--ink3); white-space:nowrap; }
+.mrow.soft{ border-left-color:var(--line2); cursor:default; }
+.mrow.soft:hover{ transform:none; border-color:var(--line); }
+.mrow.soft .n, .mrow.soft .t{ color:var(--ink3); font-weight:400; }
+
+/* ---------- contents / criteria map ---------- */
+.toc{ display:flex; flex-direction:column; gap:.62cqw; }
+.toc .row{
+  display:grid; grid-template-columns:3.4cqw 1fr 1.3fr 4cqw; align-items:center; gap:1.2cqw;
+  background:var(--surf); border:1px solid var(--line); border-left:.32cqw solid var(--accent);
+  border-radius:.6cqw; padding:.85cqw 1.2cqw; cursor:pointer; text-align:left;
+  font-family:inherit; color:inherit;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.toc .row:hover{ border-color:var(--accent); transform:translateX(.25cqw); }
+.toc .row:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.toc .row .num{
+  font-family:'IBM Plex Mono',monospace; font-size:1.35cqw; color:var(--accent); font-weight:600;
+}
+.toc .row .crit{
+  font-family:'Big Shoulders Display',sans-serif; font-weight:700; font-size:2.05cqw; line-height:1.05;
+}
+.toc .row .ans{ font-size:1.38cqw; color:var(--ink2); line-height:1.35; }
+.toc .row .ans b{ color:var(--ink); font-weight:600; }
+.toc .row .go{
+  font-family:'IBM Plex Mono',monospace; font-size:1.15cqw; color:var(--ink3); text-align:right;
+}
+.toc .row.soft{ border-left-color:var(--line2); cursor:default; }
+.toc .row.soft:hover{ transform:none; border-color:var(--line); }
+.toc .row.soft .num, .toc .row.soft .crit{ color:var(--ink3); }
+
+/* ---------- clickable cards ---------- */
+.hot{
+  position:relative; cursor:pointer; text-align:left;
+  font-family:inherit; color:inherit;
+  background:var(--surf); border:1px solid var(--line);
+  border-radius:.8cqw; padding:1.8cqw 1.9cqw 1.7cqw;
+  transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+  display:flex; flex-direction:column;
+}
+.hot:hover{ border-color:var(--accent); transform:translateY(-.18cqw); box-shadow:0 .5cqw 1.4cqw -.6cqw rgba(0,0,0,.28); }
+.hot:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.hot .ht{ font-family:'Big Shoulders Display',sans-serif; font-weight:700; font-size:3cqw; line-height:1.02; display:block; }
+.hot .hs{
+  font-family:'IBM Plex Mono',monospace; font-size:1.42cqw; color:var(--ink3);
+  margin-top:.5cqw; display:block; letter-spacing:.03em;
+}
+.hot::after{
+  content:"+"; position:absolute; top:.9cqw; right:1.1cqw;
+  font-family:'IBM Plex Mono',monospace; font-size:1.7cqw; color:var(--ink3); line-height:1;
+}
+.hot.open::after{ content:"−"; color:var(--accent); }
+.hot.open{ border-color:var(--accent); }
+.hot.noplus::after{ content:none; }
+.hot.tone-ok{ border-left:.32cqw solid var(--ok); }
+.hot.tone-warn{ border-left:.32cqw solid var(--warn); }
+.hot.tone-risk{ border-left:.32cqw solid var(--risk); }
+.hot.tone-acc{ border-left:.32cqw solid var(--accent); }
+
+/* bullets inside a card */
+.hot ul{ margin:.9cqw 0 0; padding-left:1.5cqw; }
+.hot li{
+  font-size:1.68cqw; line-height:1.4; color:var(--ink2); margin-bottom:.5cqw;
+}
+.hot li b{ color:var(--ink); font-weight:600; }
+.hot li:last-child{ margin-bottom:0; }
+
+/* standalone bullet block on a slide */
+.pts{ margin:0; padding-left:1.7cqw; }
+.pts li{ font-size:1.85cqw; line-height:1.5; color:var(--ink2); margin-bottom:.85cqw; }
+.pts li b{ color:var(--ink); font-weight:600; }
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2cqw;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1cqw;}
+.stack{display:flex;flex-direction:column;gap:1cqw;}
+
+svg.fig{ width:100%; height:auto; display:block; }
+.svg-l{font-family:'Source Sans 3',sans-serif;font-size:19px;font-weight:700;fill:var(--ink);}
+.svg-s{font-family:'IBM Plex Mono',monospace;font-size:13px;fill:var(--ink3);}
+.svg-n{font-family:'Source Sans 3',sans-serif;font-size:15px;fill:var(--ink2);}
+
+/* ---------- flow simulation ---------- */
+.stage-node{ cursor:pointer; }
+.stage-node .nbox{ transition:opacity .3s ease, stroke .3s ease; }
+.stage-node.future{ opacity:.3; }
+.stage-node.past{ opacity:.68; }
+.stage-node.now{ opacity:1; }
+.stage-node.now .nbox{ stroke:var(--accent); stroke-width:3; }
+.stage-node:hover{ opacity:1; }
+#flowcap{
+  margin-top:1.1cqw; min-height:4.4cqw;
+  font-size:1.7cqw; color:var(--ink2); line-height:1.4; max-width:78ch;
+}
+#flowcap b{ color:var(--ink); font-weight:600; }
+.flowctl{ display:flex; align-items:center; gap:.7cqw; margin-top:.3cqw; }
+.flowctl button{
+  font-family:'IBM Plex Mono',monospace; font-size:1.25cqw;
+  background:var(--surf); color:var(--ink2); border:1px solid var(--line2);
+  border-radius:.5cqw; padding:.5cqw 1cqw; cursor:pointer;
+}
+.flowctl button:hover{ border-color:var(--accent); color:var(--accent); }
+.flowctl button.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.flowctl .step{ font-family:'IBM Plex Mono',monospace; font-size:1.2cqw; color:var(--ink3); margin-left:.4cqw; }
+
+/* ---------- side panel ---------- */
+#panel{
+  position:fixed; top:0; right:0; bottom:0; width:min(600px,49vw);
+  background:var(--deck); border-left:1px solid var(--line2);
+  box-shadow:-24px 0 60px -30px rgba(0,0,0,.5);
+  transform:translateX(102%); transition:transform .26s cubic-bezier(.4,0,.2,1);
+  z-index:40; display:flex; flex-direction:column;
+}
+#panel.on{ transform:translateX(0); }
+#panel .ptop{
+  display:flex; align-items:center; gap:10px; padding:16px 20px;
+  border-bottom:1px solid var(--line); flex:none;
+}
+#panel .ptop .plabel{
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3);
+}
+#panel .pclose{
+  margin-left:auto; background:var(--surf); border:1px solid var(--line);
+  border-radius:6px; width:28px; height:28px; cursor:pointer; color:var(--ink2);
+  font-family:'IBM Plex Mono',monospace; font-size:14px; line-height:1;
+}
+#panel .pclose:hover{ border-color:var(--accent); color:var(--accent); }
+#pbody{ padding:22px 26px 44px; overflow-y:auto; }
+#pbody h4{
+  font-family:'Big Shoulders Display',sans-serif; font-weight:800; font-size:30px;
+  margin:0 0 12px; line-height:1.03;
+}
+#pbody h5{
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink3); margin:22px 0 8px;
+}
+#pbody p{ margin:0 0 12px; font-size:15px; line-height:1.6; color:var(--ink2); }
+#pbody p b, #pbody li b{ color:var(--ink); font-weight:600; }
+#pbody ul{ margin:0 0 12px; padding-left:18px; }
+#pbody li{ font-size:15px; line-height:1.55; color:var(--ink2); margin-bottom:8px; }
+#pbody code, #pbody .m{ font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+  background:var(--surf2); padding:1px 5px; border-radius:4px; }
+
+/* the lead position of the panel */
+#pbody .say{
+  background:var(--accent-bg); border:1px solid var(--accent);
+  border-radius:8px; padding:14px 16px; margin:0 0 16px;
+}
+#pbody .say p{ margin:0; font-size:16px; line-height:1.5; color:var(--ink); font-weight:600; }
+
+/* "Instead of" — the rejected alternative */
+#pbody .vs{
+  border-left:3px solid var(--warn); background:var(--surf);
+  padding:11px 14px; border-radius:0 7px 7px 0; margin:0 0 12px;
+}
+#pbody .vs::before{
+  content:"INSTEAD OF"; display:block;
+  font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.16em;
+  color:var(--warn); margin-bottom:5px;
+}
+#pbody .vs p{ margin:0; font-size:14px; }
+
+#pbody .verdict{
+  border-left:3px solid var(--accent); background:var(--surf);
+  padding:11px 14px; border-radius:0 7px 7px 0; margin:0 0 12px;
+}
+#pbody .verdict.warn{ border-left-color:var(--warn); }
+#pbody .verdict.risk{ border-left-color:var(--risk); }
+#pbody .verdict.ok{ border-left-color:var(--ok); }
+#pbody .verdict p{ margin:0; font-size:14px; }
+#pbody .kv{ display:grid; grid-template-columns:auto 1fr; gap:6px 13px; font-size:13.5px; margin-bottom:13px; }
+#pbody .kv dt{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink3); padding-top:2px; }
+#pbody .kv dd{ margin:0; color:var(--ink2); }
+#pbody pre{ background:var(--surf2); border:1px solid var(--line); border-radius:7px;
+  padding:11px 12px; overflow-x:auto; font-family:'IBM Plex Mono',monospace;
+  font-size:11px; line-height:1.6; margin:0 0 12px; color:var(--ink2); white-space:pre; }
+#pbody pre b{ color:var(--accent); font-weight:600; }
+#pbody pre i{ color:var(--ink3); font-style:normal; }
+#pbody table{ width:100%; border-collapse:collapse; font-size:13px; margin:0 0 13px; }
+#pbody th{ text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--ink3);
+  padding:0 8px 6px; border-bottom:1px solid var(--line2); }
+#pbody td{ padding:7px 8px; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top; }
+#pbody td b{ color:var(--ink); }
+#pbody tr:last-child td{ border-bottom:none; }
+#pbody .num{ font-variant-numeric:tabular-nums; font-family:'IBM Plex Mono',monospace; font-size:11.5px; }
+
+/* second tier — collapsed depth */
+#pbody details{
+  border:1px solid var(--line2); border-radius:8px; margin:0 0 13px; background:var(--surf);
+}
+#pbody details summary{
+  cursor:pointer; padding:10px 14px; list-style:none;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--accent);
+}
+#pbody details summary::-webkit-details-marker{ display:none; }
+#pbody details summary::before{ content:"▸ "; }
+#pbody details[open] summary::before{ content:"▾ "; }
+#pbody details[open] summary{ border-bottom:1px solid var(--line); }
+#pbody details > *:not(summary){ margin-left:14px; margin-right:14px; }
+#pbody details > *:nth-child(2){ margin-top:13px; }
+
+.panel-src{ display:none; }
+#scrim{ position:fixed; inset:0; background:rgba(8,14,20,.32); opacity:0; pointer-events:none;
+  transition:opacity .26s ease; z-index:35; }
+#scrim.on{ opacity:1; pointer-events:auto; }
+
+/* ---------- presenter notes ---------- */
+#notes{
+  position:fixed; left:0; right:0; bottom:42px; z-index:38;
+  background:var(--deck); border-top:3px solid var(--risk);
+  box-shadow:0 -18px 46px -28px rgba(0,0,0,.55);
+  padding:15px 22px 17px; max-height:42vh; overflow-y:auto;
+  transform:translateY(105%); transition:transform .24s cubic-bezier(.4,0,.2,1);
+}
+#notes.on{ transform:translateY(0); }
+#notes .nhead{
+  display:flex; align-items:baseline; gap:14px; margin-bottom:9px;
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--accent);
+}
+#notes .nhead .clock{ margin-left:auto; font-size:15px; letter-spacing:.04em; color:var(--ink2);
+  font-variant-numeric:tabular-nums; text-transform:none; }
+#notes .nhead .budget{ color:var(--ink3); letter-spacing:.06em; }
+#notes .nhead .warn{ color:#fff; background:var(--risk); padding:3px 9px; border-radius:4px;
+  letter-spacing:.11em; }
+#notes .ntext{ font-size:15px; line-height:1.55; color:var(--ink);
+  columns:2; column-gap:44px; column-rule:1px solid var(--line); }
+#notes .ntext br{ display:block; content:''; }
+@media (max-width:1000px){ #notes .ntext{ columns:1; } }
+#notes .ntext b{ color:var(--accent); }
+#notes .ntext .cue{ display:block; color:var(--warn); font-weight:600;
+  border-left:3px solid var(--warn); padding-left:11px; margin:11px 0; }
+#notes .ntext .cue::before{ content:'SAY \2192 '; font-family:'IBM Plex Mono',monospace;
+  font-size:10px; letter-spacing:.16em; opacity:.85; }
+#notes .ntext em{ font-style:normal; color:var(--ink3); }
+
+/* ---------- chrome ---------- */
+#bar{
+  position:fixed; left:0; right:0; bottom:0; height:42px; z-index:39;
+  display:flex; align-items:center; gap:12px; padding:0 16px;
+  background:var(--deck); border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink3);
+}
+#bar button{ font:inherit; color:var(--ink2); background:var(--surf);
+  border:1px solid var(--line); border-radius:6px; padding:4px 10px; cursor:pointer; }
+#bar button:hover{ border-color:var(--accent); color:var(--accent); }
+#bar button.live{ background:var(--accent); color:#fff; border-color:var(--accent); }
+#sect{ letter-spacing:.1em; text-transform:uppercase; }
+#count{ margin-left:auto; font-variant-numeric:tabular-nums; }
+#prog{ position:fixed; top:0; left:0; height:2px; background:var(--accent); z-index:45; transition:width .18s ease; }
+
+#grid{ display:none; position:fixed; inset:0; background:var(--bg); overflow:auto; padding:28px 28px 68px; z-index:46; }
+#grid.on{ display:block; }
+#grid .gw{ max-width:1240px; margin:0 auto; display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
+#grid .gi{ background:var(--deck); border:1px solid var(--line); border-radius:8px; padding:13px; cursor:pointer; }
+#grid .gi:hover{ border-color:var(--accent); }
+#grid .gi .n{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink3); }
+#grid .gi .t{ font-family:'Big Shoulders Display',sans-serif; font-weight:700; font-size:18px; margin-top:4px; line-height:1.05; }
+#grid h3{ max-width:1240px; margin:0 auto 14px; font-family:'Big Shoulders Display',sans-serif; font-size:26px; }
+
+.metric{ display:flex; align-items:baseline; gap:.5cqw; }
+.metric .mv{ font-family:'Big Shoulders Display',sans-serif; font-weight:800; font-size:3cqw; line-height:1; }
+.metric .mu{ font-family:'IBM Plex Mono',monospace; font-size:1.15cqw; color:var(--ink3); }
+
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+@media (max-width:760px){
+  body{ padding:12px 12px 56px; }
+  #panel{ width:100%; }
+  #notes{ max-height:56vh; }
+}
+@media print{
+  body{display:block;padding:0;} #bar,#prog,#grid,#panel,#scrim,#notes{display:none!important;}
+  .slide{display:flex!important;break-after:page;box-shadow:none;border:none;border-radius:0;}
+}
+#presbtn,#notesbtn,#timer,#notes{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage">
+<section class="slide title" data-section="Cover" data-key="cover"
+  data-budget="0.5 min">
+  <div class="tag">Independent project · reference architecture</div>
+  <h1>AI-as-a-Service<br>Layer</h1>
+  <div style="font-size:2.4cqw;color:var(--ink2);margin-top:1.2cqw;margin-bottom:2.6cqw;letter-spacing:-.005em">Case study: a university platform</div>
+  <div class="rule"></div>
+  <div class="who">
+    <b style="font-size:2.3cqw;color:var(--ink)">Akintunde Ojutiku</b><br>
+    <span style="font-size:1.7cqw;">app-agnostic · modular · permission-scoped · EU-resident</span><br>
+    <span class="mono" style="font-size:1.25cqw;color:var(--ink3);letter-spacing:.06em">
+      high-level architecture &amp; tech stack · 2026
+    </span>
+  </div>
+</section>
+
+<section class="slide" data-section="Aim" data-key="aim"
+  data-budget="1.5 min">
+  <div class="tag">What this has to achieve</div>
+  <h2>Objective</h2>
+  <p class="sub">App-agnostic &middot; modular &middot; one engineer</p>
+
+  <div class="body">
+    <div class="grid3">
+      <button class="hot tone-acc" data-panel="am-one" data-label="Aim 1">
+        <span class="ht">One layer, many apps</span>
+        <span class="hs">a new app is a client</span>
+        <ul>
+          <li>Capabilities surface <b>inside the tools students already use</b></li>
+          <li>One contract for every client, now and later</li>
+          <li>Improve retrieval once → every feature improves</li>
+        </ul>
+      </button>
+
+      <button class="hot tone-ok" data-panel="am-two" data-label="Aim 2">
+        <span class="ht">Correct before clever</span>
+        <span class="hs">check it, then ship it</span>
+        <ul>
+          <li>The model <b>never computes</b> what a query can answer</li>
+          <li>Every claim checked against evidence before it leaves</li>
+          <li>Refusal is a first-class answer</li>
+        </ul>
+      </button>
+
+      <button class="hot tone-warn" data-panel="am-three" data-label="Aim 3">
+        <span class="ht">One engineer, EU only</span>
+        <span class="hs">~€250/month · 0.1 req/s</span>
+        <ul>
+          <li>No component that needs a <b>second person to operate</b></li>
+          <li>EU inference is a requirement, not a preference</li>
+          <li>Sized for 1,000 students — not for a conference talk</li>
+        </ul>
+      </button>
+    </div>
+
+    <div style="margin-top:1.8cqw;">
+      <button class="hot tone-acc" data-panel="am-thesis" data-label="The one idea" style="width:100%;">
+        <span class="ht">The one idea</span>
+        <span class="hs">permission and personalisation are the same mechanism</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-am-one">
+      <h4>Aim 1 · One layer, many apps</h4>
+      <div class="say"><p>The goal's two hardest words are <b>app-agnostic</b> and <b>modular</b>. Taking them literally is what produces a layer instead of an application.</p></div>
+      <h5>What ships</h5>
+      <ul>
+        <li>A <b>capability API</b> — five verbs: ask, find, plan, recommend, assess</li>
+        <li>A small <b>embeddable widget</b> for chat and search surfaces</li>
+        <li>Nothing else. No portal, no dashboard, no second login</li>
+      </ul>
+      <h5>Why not a destination</h5>
+      <p>A new portal competes with the LMS students already live in. Adoption is the hardest part of any university tool and it cannot be fixed by a later sprint — it is decided the day someone chooses a destination over a capability.</p>
+      <div class="verdict ok"><p>Consequence: the staff workplace and the public site later are <b>a different scope set, not a different build</b>. That is the bonus question answered by the architecture rather than by a promise.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-am-two">
+      <h4>Aim 2 · Correct before clever</h4>
+      <div class="say"><p>A student told they have 12 credits left when they have 24 has been harmed regardless of how good the evaluation harness is.</p></div>
+      <h5>Three mechanisms, in order of strength</h5>
+      <ul>
+        <li><b>By construction</b> — ECTS, prerequisites, clashes and eligibility are tool calls. The model asks a system that knows</li>
+        <li><b>By checking</b> — every claim entailed against retrieved evidence before the answer returns</li>
+        <li><b>By ordering</b> — nothing generative ships before the harness that can catch it is live in production</li>
+      </ul>
+      <div class="verdict"><p>The five requested features are <b>four different kinds of problem</b>: two are pure retrieval, one is arithmetic, two are genuinely generative. Shipping them in that order is the roadmap, and the reason it is not the order of demo appeal.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-am-three">
+      <h4>Aim 3 · One engineer, EU-resident</h4>
+      <div class="say"><p>Three numbers decide every choice in this deck: <b>one engineer</b>, <b>EU only</b>, <b>a thousand students</b>.</p></div>
+      <div class="kv">
+        <dt>one engineer</dt><dd>no component that needs a second person to run it — boring, well-understood tools win</dd>
+        <dt>EU only</dt><dd>student data is personal data under a public-task basis, so inference location is a hard requirement</dd>
+        <dt>~1,000 students</dt><dd>≈10,000 requests a day ≈ <b>0.1 req/s</b> average, maybe 5/s at a registration peak</dd>
+        <dt>cost</dt><dd>~€250/month managed EU, ~€0.25 per student</dd>
+      </div>
+      <h5>Why naming the scale matters</h5>
+      <p>The most expensive mistake available is designing for a scale that does not exist. A 0.1 req/s service needs no sharding, no message bus and no dedicated vector cluster — and each of those would cost a year of the one engineer's attention.</p>
+      <div class="vs"><p><b>A hyperscaler reference architecture.</b> It would look more impressive on a slide and be the wrong answer for this deployment.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-am-thesis">
+      <h4>The one idea</h4>
+      <div class="say"><p><b>A scope is a permission boundary and a personalization boundary at the same time.</b> That is the single design decision the whole layer rests on.</p></div>
+      <h5>Why it matters</h5>
+      <p>Most designs build personalization as one system and data protection as a second system, then spend forever keeping the two in agreement. Every leak lives in that gap.</p>
+      <p>Here they are <b>one mechanism</b>. The context resolver decides what a student may see, and in deciding that it has already decided what makes the answer personal.</p>
+      <h5>What follows from it</h5>
+      <ul>
+        <li><b>Permission before retrieval</b> — denied data is never fetched, so there is nothing to scrub</li>
+        <li><b>Personalization is the same code path</b> — no second system to keep in agreement</li>
+        <li><b>Reuse for staff and public is free</b> — a different scope set, not a different build</li>
+        <li><b>Erasure stays tractable</b> — every chunk carries a subject, so deletion is a filter away</li>
+      </ul>
+      <div class="verdict ok"><p>Hybrid retrieval, the policy gate, the tool boundary, the groundedness check and the three-tier reuse are all downstream of that one idea.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Outline" data-key="contents"
+  data-budget="1 min">
+  <div class="tag">What this covers, and in what order</div>
+  <h2>Outline</h2>
+
+  <div class="body">
+    <div class="olist">
+      <button class="orow" data-goto="tech">
+        <span class="n">1</span><span class="t">Tech stack</span><span class="s">4</span>
+      </button>
+      <button class="orow" data-goto="architecture">
+        <span class="n">2</span><span class="t">Architecture</span><span class="s">5</span>
+      </button>
+      <button class="orow" data-goto="ai">
+        <span class="n">3</span><span class="t">AI integration</span><span class="s">6</span>
+      </button>
+      <button class="orow" data-goto="data">
+        <span class="n">4</span><span class="t">Data &amp; retrieval</span><span class="s">7</span>
+      </button>
+      <button class="orow" data-goto="security">
+        <span class="n">5</span><span class="t">Security &amp; privacy</span><span class="s">8</span>
+      </button>
+      <button class="orow" data-goto="roadmap">
+        <span class="n">6</span><span class="t">Roadmap</span><span class="s">9</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Tech stack" data-key="tech"
+  data-budget="2 min">
+  <div class="tag">Tech Stack Proposal</div>
+  <h2>Tech stack</h2>
+  <p class="sub">Boring on purpose</p>
+
+  <div class="body">
+    <div class="grid4">
+      <button class="hot tone-acc" data-panel="st-backend" data-label="Backend">
+        <span class="ht">FastAPI</span>
+        <span class="hs">Python · Pydantic · OpenAPI free</span>
+        <ul><li>beat <b>Node / Go</b></li></ul>
+      </button>
+      <button class="hot" data-panel="st-frontend" data-label="Frontend">
+        <span class="ht">No new frontend</span>
+        <span class="hs">an API and an embeddable widget</span>
+        <ul><li>beat <b>a new portal</b></li></ul>
+      </button>
+      <button class="hot tone-acc" data-panel="st-ai" data-label="AI / ML">
+        <span class="ht">PydanticAI · LiteLLM · MCP</span>
+        <span class="hs">agents · gateway · tools</span>
+        <ul><li>beat <b>LangChain</b></li></ul>
+      </button>
+      <button class="hot tone-acc" data-panel="st-store" data-label="Storage &amp; retrieval">
+        <span class="ht">PostgreSQL + pgvector</span>
+        <span class="hs">vectors + BM25 + joins, one store</span>
+        <ul><li>beat <b>Qdrant / Milvus</b></li></ul>
+      </button>
+    </div>
+
+    <div class="grid3" style="margin-top:1.2cqw;">
+      <button class="hot tone-acc" data-panel="st-platform" data-label="Data platform">
+        <span class="ht">Iceberg REST catalogue</span>
+        <span class="hs">the portability contract</span>
+        <ul><li>beat <b>building a lakehouse</b></li></ul>
+      </button>
+      <button class="hot tone-warn" data-panel="st-devops" data-label="DevOps">
+        <span class="ht">Docker · Helm · GitOps</span>
+        <span class="hs">probes · rolling update · git revert</span>
+        <ul><li>beat <b>k8s for its own sake</b></li></ul>
+      </button>
+      <button class="hot tone-ok" data-panel="st-cost" data-label="Cost &amp; hosting">
+        <span class="ht">EU hosting, costed</span>
+        <span class="hs">~€250/mo · Vienna</span>
+        <ul><li>beat <b>AWS / Azure defaults</b></li></ul>
+      </button>
+    </div>
+  </div>
+
+  <div class="hintline">every choice names what it beat</div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-st-frontend">
+      <h4>No new frontend — and that is the frontend answer</h4>
+      <div class="say"><p>A complete stack needs a backend <i>and a frontend</i> answer. The honest frontend proposal is <b>an API and a small embeddable widget</b> — not another destination.</p></div>
+      <div class="kv">
+        <dt>widget</dt><dd>a self-contained web component for chat and search surfaces — no framework imposed on the host app</dd>
+        <dt>host apps</dt><dd>the portal, the LMS and the mobile app keep whatever they already use</dd>
+        <dt>contract</dt><dd>the same five verbs over REST; the widget is one client among several</dd>
+        <dt>auth</dt><dd>the host page's existing SSO session — no second login, ever</dd>
+      </div>
+      <h5>Why this is an engineering decision, not a cop-out</h5>
+      <p>A new portal competes with the LMS students already live in. Adoption is the hardest part of any university tool and cannot be fixed by a later sprint — it is decided the day someone chooses a destination over a capability.</p>
+      <div class="vs"><p><b>A React or Vue AI portal.</b> It is the most visible thing to build, the most satisfying to demo, and the one students are least likely to open a second time.</p></div>
+      <h5>If the university does want a standalone surface later</h5>
+      <p>It is a client like any other: it calls the same contract, it inherits the same scopes, and it takes days rather than a project. <b>Choosing not to build it now does not close the door — it just refuses to spend the first three months there.</b></p>
+      <div class="verdict"><p>If a framework is needed for that surface, the choice follows whatever the university's web team already maintains. A one-person AI team should not be the reason a university adopts a new frontend stack.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-st-backend">
+      <h4>Python · FastAPI + Pydantic</h4>
+      <div class="say"><p>One definition does three jobs: API validation, tool schemas, and structured model output.</p></div>
+      <ul>
+        <li>Async, typed contracts, <b>OpenAPI generated free</b></li>
+        <li>Pydantic models become the tool schemas MCP publishes</li>
+        <li>Malformed model output <b>fails loudly</b> instead of silently</li>
+      </ul>
+      <div class="vs"><p><b>Node or Go.</b> Both are fine web stacks — but every AI library, eval framework and embedding tool is Python-first. A one-person team cannot afford a second language in the hot path.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-st-ai">
+      <h4>PydanticAI · LiteLLM · MCP</h4>
+      <div class="say"><p>The framework is the replaceable part. <b>The gateway is what matters</b>, because it is what keeps model choice reversible.</p></div>
+      <div class="kv">
+        <dt>PydanticAI</dt><dd>agents with typed, validated outputs</dd>
+        <dt>LiteLLM</dt><dd>one OpenAI-compatible gateway, any provider</dd>
+        <dt>MCP</dt><dd>standard protocol for tools — register, don't modify</dd>
+      </div>
+      <div class="vs"><p><b>LangChain.</b> Its abstraction depth exceeds what this system needs, and debugging through it costs more than it saves here. <b>Haystack or LlamaIndex</b> would both work well — if the team already knows one, that beats my preference.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-st-store">
+      <h4>PostgreSQL + pgvector, and a real BM25 extension</h4>
+      <div class="say"><p>I'm not claiming Postgres beats a vector database. It doesn't, on raw benchmarks. <b>It wins here because the permission check needs relational joins</b> — and that's a property of this deployment, not a universal truth.</p></div>
+      <div class="kv">
+        <dt>dense</dt><dd>pgvector, HNSW, <span class="m">halfvec(1024)</span></dd>
+        <dt>sparse</dt><dd>a BM25 extension — <b>not</b> <span class="m">ts_rank</span></dd>
+        <dt>relational</dt><dd>students, courses, enrolments, ACLs</dd>
+      </div>
+      <h5>Reverse it when</h5>
+      <ul>
+        <li>The HNSW graph stops fitting in RAM → add <b>pgvectorscale</b> first</li>
+        <li>Filtered recall degrades → move to <b>Qdrant</b>, genuinely best-in-class there</li>
+        <li>Vector writes block OLTP → split onto its own Postgres before a new product</li>
+      </ul>
+      <div class="verdict warn"><p>Postgres full-text is <b>not BM25</b> — no IDF, no term saturation, no length normalisation. The sparse half needs a proper extension, and German decompounding must be verified.</p></div>
+
+      <h5>Which forces a decision about where Postgres runs</h5>
+      <p><span class="m">pg_search</span> <b>cannot be installed on a managed Postgres service.</b> The project says so directly — on RDS and equivalents it is unavailable until the provider adds it — and below PG 17 it also needs to be in <span class="m">shared_preload_libraries</span>, which managed services do not expose.</p>
+      <div class="kv">
+        <dt>therefore</dt><dd>the database is <b>self-managed Postgres on a VM</b>, not a DBaaS</dd>
+        <dt>given up</dt><dd>managed backups, managed failover, provider patching</dd>
+        <dt>bought</dt><dd>the extension — and with it real BM25 and German tokenisation</dd>
+        <dt>cost</dt><dd>pg_basebackup to object storage, a documented restore drill, and a second engineer's afternoon per quarter</dd>
+      </div>
+      <div class="verdict warn"><p>If institutional policy forbids a self-managed database, the dense half stays on managed Postgres — <b>pgvector is available everywhere</b> — and only the sparse half moves out, to a Tantivy-based engine such as Quickwit. The ACL pre-filter then becomes an ID intersection rather than a join: more moving parts, more latency, and the reason this is the fallback and not the plan.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-st-platform">
+      <h4>Iceberg tables via a REST catalogue</h4>
+      <div class="say"><p>The design assumes the university <b>provides access to</b> a data platform. It already exists. Building a second one is answering a question nobody asked.</p></div>
+      <div class="kv">
+        <dt>consume</dt><dd>read through the platform's Iceberg REST catalogue</dd>
+        <dt>agree</dt><dd>a contract — which tables, what shape, what cadence, CDC or not</dd>
+        <dt>own</dt><dd>only the AI-serving layer — chunks, embeddings, ACL metadata, freshness</dd>
+      </div>
+      <h5>Why scope discipline is the real test here</h5>
+      <p>A self-managed lakehouse — object storage, Iceberg or Delta, a catalogue, Trino or Spark — is routinely a <b>3–6 engineer, 6+ month</b> build, then a permanent operational load. Proposing it as a side task for one AI engineer is how a proposal loses credibility in the first follow-up question.</p>
+      <div class="vs"><p><b>A bespoke export, or direct database access.</b> Both couple the AI layer to whatever the platform happens to be today. The catalogue — not the file format — is the portability guarantee.</p></div>
+      <div class="verdict"><p><b>And if there is no platform yet?</b> The honest answer gets smaller, not bigger: Postgres plus object storage carries a 1,000-student corpus comfortably, and the lakehouse waits for a data team to own it.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-st-devops">
+      <h4>Docker · Helm · GitOps</h4>
+      <div class="say"><p>Kubernetes only because the university likely already runs it. <b>The same containers run under Compose on two VMs</b> — the orchestrator is not load-bearing at this size.</p></div>
+      <div class="kv">
+        <dt>build</dt><dd>container per service, pinned tags, private EU registry</dd>
+        <dt>package</dt><dd>Helm chart, values per environment</dd>
+        <dt>deploy</dt><dd>git commit → ArgoCD reconciles</dd>
+        <dt>health</dt><dd>startup, readiness and liveness probes</dd>
+        <dt>undo</dt><dd><span class="m">git revert</span>, or <span class="m">kubectl rollout undo</span></dd>
+      </div>
+      <h5>When a pod fails</h5>
+      <ul>
+        <li>Liveness probe fails → <b>kubelet restarts the container</b></li>
+        <li>Readiness probe fails → pod leaves the Service endpoints, traffic stops arriving</li>
+        <li>Node fails → the scheduler places the pod elsewhere</li>
+        <li>Deploys roll with <span class="m">maxUnavailable: 0</span>, so a bad image never drains the last healthy pod</li>
+      </ul>
+      <div class="verdict ok"><p>Proven pattern: this exact probe-and-Helm setup is what I shipped in my own multimodal retrieval and recommender service.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-st-cost">
+      <h4>What it costs, and where it runs</h4>
+      <div class="say"><p>About <b>€250 a month</b> — roughly 25 cents per student — on Exoscale's Vienna region with EU inference. Sovereign self-hosting is €420 and two extra seconds per answer.</p></div>
+      <table>
+        <thead><tr><th>Provider</th><th>Managed K8s</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><b>Exoscale</b> <i>Vienna</i></td><td>✓ free Starter control plane</td><td><b>Austrian region.</b> 3-node cluster from ~€91/mo</td></tr>
+          <tr><td><b>Scaleway</b> <i>Paris</i></td><td>✓ free control plane</td><td>EU inference API: ~€0.15 / €0.35 per M tokens</td></tr>
+          <tr><td><b>Hetzner</b> <i>Nuremberg</i></td><td><b>✗ none</b> — self-managed k3s</td><td>Cheapest EU GPU: 24 GB from ~€214/mo</td></tr>
+          <tr><td><b>OVHcloud, IONOS, StackIT</b></td><td>✓</td><td>Credible, worth a quote</td></tr>
+        </tbody>
+      </table>
+      <div class="vs"><p><b>AWS or Azure by default.</b> Both can be configured EU-resident, but they stay within CLOUD Act reach and cost several times more at this scale. At 1,000 students, hyperscaler pricing buys resilience the institution does not yet need.</p></div>
+      <div class="verdict warn"><p>Two corrections to advice I see repeated: <b>Hetzner has no managed Kubernetes</b> — use it for the GPU box only. And <b>MinIO is no longer a safe default</b> — its community edition entered maintenance and the repo was archived in 2026. Use Garage or SeaweedFS.</p></div>
+      <details>
+        <summary>Show the full cost breakdown</summary>
+        <table>
+          <thead><tr><th>Line</th><th class="num">A · managed</th><th class="num">B · sovereign</th></tr></thead>
+          <tbody>
+            <tr><td>Managed Kubernetes, Vienna</td><td class="num">~110</td><td class="num">~110</td></tr>
+            <tr><td>Answer model (143k calls)</td><td class="num">~105</td><td class="num">0</td></tr>
+            <tr><td>GPU server, 24 GB</td><td class="num">—</td><td class="num">~214</td></tr>
+            <tr><td>Routing + embeddings</td><td class="num">~15</td><td class="num">0</td></tr>
+            <tr><td>Frontier fallback, capped</td><td class="num">—</td><td class="num">~75</td></tr>
+            <tr><td>Storage + egress</td><td class="num">~20</td><td class="num">~20</td></tr>
+            <tr><td><b>Total €/month</b></td><td class="num"><b>~250</b></td><td class="num"><b>~420</b></td></tr>
+            <tr><td><b>p50 latency</b></td><td class="num"><b>~1.35 s</b></td><td class="num"><b>~3.15 s</b></td></tr>
+          </tbody>
+        </table>
+        <p>Assumes 1,000 students × 10 interactions × 22 days ≈ 220,000 requests/month, 35% cache hit. Prices verified September 2026; model pricing moves constantly, so treat this as an order of magnitude, not a quote.</p>
+        <p><b>The sovereign number is honest about latency:</b> an 8B model at 4-bit on a 24 GB card benchmarks around 95 tokens/second single-stream, so 250 tokens is ~2.6 s — not the sub-second a hosted endpoint gives. Claiming otherwise would not survive one follow-up question.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Architecture" data-key="architecture"
+  data-budget="3 min">
+  <div class="tag">Architecture Overview</div>
+  <h2>Architecture</h2>
+
+  <div class="body">
+    <div class="viewtabs">
+      <button data-view="v-schema" class="on">Components &amp; data flow</button>
+      <button data-view="v-flow">Walk a request</button>
+      <button data-view="v-run">Style &amp; operability</button>
+    </div>
+
+    <div id="v-schema" class="viewpane on">
+    <figure style="margin:0;">
+    <svg class="fig" viewBox="0 0 1180 440" role="img"
+         aria-label="A five-band layered architecture. Clients call one capability contract. The AI service layer contains capability API, policy gate, context resolver, retrieval and tool servers in parallel, model gateway and groundedness check. Below it a single PostgreSQL plus Redis holds all state. Below that an ingestion pipeline runs change data capture, chunking, hashing, embedding of changed records only, and a blue-green index swap, fed by the university data platform. A dashed line on the right shows live source systems bypassing both the pipeline and the store, called directly by the tool servers.">
+      <defs>
+        <marker id="sa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="var(--line2)"/>
+        </marker>
+        <marker id="sb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="var(--s-uni)"/>
+        </marker>
+      </defs>
+
+      <g class="stage-node" data-panel="sy-clients" data-label="Tier 1 · Clients">
+        <rect class="nbox" x="14" y="4" width="1152" height="54" rx="9"
+              fill="var(--surf2)" stroke="var(--line2)" stroke-width="1.5"/>
+        <text x="32" y="27" class="svg-s" font-size="11">CLIENTS</text>
+        <text x="32" y="45" class="svg-s" font-size="11">any app, present or future</text>
+        <g>
+          <rect x="340" y="14" width="152" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+          <text x="416" y="36" text-anchor="middle" class="svg-n" font-size="14">student portal</text>
+          <rect x="504" y="14" width="152" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+          <text x="580" y="36" text-anchor="middle" class="svg-n" font-size="14">LMS</text>
+          <rect x="668" y="14" width="152" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+          <text x="744" y="36" text-anchor="middle" class="svg-n" font-size="14">mobile app</text>
+          <rect x="832" y="14" width="152" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-dasharray="4 3" stroke-width="1.2"/>
+          <text x="908" y="36" text-anchor="middle" class="svg-n" font-size="14">staff workplace</text>
+          <rect x="996" y="14" width="154" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-dasharray="4 3" stroke-width="1.2"/>
+          <text x="1073" y="36" text-anchor="middle" class="svg-n" font-size="14">public site</text>
+        </g>
+      </g>
+
+      <line x1="590" y1="58" x2="590" y2="74" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      <text x="604" y="72" class="svg-s" font-size="12">one contract · ask · find · plan · recommend · assess</text>
+
+      <g class="stage-node" data-panel="sy-layer" data-label="Tier 2 · AI service layer">
+        <rect class="nbox" x="14" y="76" width="1152" height="156" rx="9"
+              fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="32" y="96" class="svg-s" font-size="11" fill="var(--accent)">AI SERVICE LAYER — app-agnostic · modular · the only thing I build</text>
+
+        <rect x="30" y="126" width="171" height="64" rx="8" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.4"/>
+        <text x="115" y="152" text-anchor="middle" class="svg-l" font-size="15">capability API</text>
+        <text x="115" y="171" text-anchor="middle" class="svg-s" font-size="11.5">one contract</text>
+
+        <rect x="219" y="126" width="171" height="64" rx="8" fill="var(--risk-bg)" stroke="var(--risk)" stroke-width="1.6"/>
+        <text x="304" y="152" text-anchor="middle" class="svg-l" font-size="15">policy gate</text>
+        <text x="304" y="171" text-anchor="middle" class="svg-s" font-size="11.5">identity · purpose</text>
+
+        <rect x="408" y="126" width="171" height="64" rx="8" fill="var(--deck)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="493" y="152" text-anchor="middle" class="svg-l" font-size="15">context resolver</text>
+        <text x="493" y="171" text-anchor="middle" class="svg-s" font-size="11.5">5 scopes · 1 budget</text>
+
+        <rect x="597" y="106" width="171" height="46" rx="8" fill="var(--ok-bg)" stroke="var(--ok)" stroke-width="1.6"/>
+        <text x="682" y="124" text-anchor="middle" class="svg-l" font-size="15">retrieval</text>
+        <text x="682" y="141" text-anchor="middle" class="svg-s" font-size="11.5">hybrid · rerank</text>
+
+        <rect x="597" y="164" width="171" height="46" rx="8" fill="var(--surf2)" stroke="var(--s-uni)" stroke-width="1.6"/>
+        <text x="682" y="182" text-anchor="middle" class="svg-l" font-size="15">tools</text>
+        <text x="682" y="199" text-anchor="middle" class="svg-s" font-size="11.5">live · exact</text>
+
+        <rect x="786" y="126" width="171" height="64" rx="8" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.4"/>
+        <text x="871" y="152" text-anchor="middle" class="svg-l" font-size="15">model gateway</text>
+        <text x="871" y="171" text-anchor="middle" class="svg-s" font-size="11.5">routed · EU-resident</text>
+
+        <rect x="975" y="126" width="171" height="64" rx="8" fill="var(--ok-bg)" stroke="var(--ok)" stroke-width="1.8"/>
+        <text x="1060" y="152" text-anchor="middle" class="svg-l" font-size="15">groundedness</text>
+        <text x="1060" y="171" text-anchor="middle" class="svg-s" font-size="11.5">cite or refuse</text>
+
+        <line x1="201" y1="158" x2="215" y2="158" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <line x1="390" y1="158" x2="404" y2="158" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <path d="M579,150 C588,150 588,129 593,129" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <path d="M579,166 C588,166 588,187 593,187" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <path d="M768,129 C777,129 777,150 782,150" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <path d="M768,187 C777,187 777,166 782,166" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <line x1="957" y1="158" x2="971" y2="158" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      </g>
+
+      <line x1="430" y1="232" x2="430" y2="250" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      <text x="444" y="248" class="svg-s" font-size="12">reads · ACL pre-filtered in the query</text>
+      <line x1="960" y1="232" x2="960" y2="250" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      <text x="974" y="248" class="svg-s" font-size="12">writes traces</text>
+
+      <g class="stage-node" data-panel="sy-state" data-label="Tier 3 · State">
+        <rect class="nbox" x="14" y="252" width="1086" height="54" rx="9"
+              fill="var(--surf)" stroke="var(--line2)" stroke-width="1.5"/>
+        <text x="32" y="271" class="svg-s" font-size="11">SHARED STATE — one transaction boundary</text>
+        <rect x="32" y="276" width="812" height="24" rx="5" fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="1.4"/>
+        <text x="438" y="293" text-anchor="middle" class="svg-n" font-size="14">PostgreSQL — chunks + embeddings + BM25 + ACL + traces</text>
+        <rect x="856" y="276" width="228" height="24" rx="5" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+        <text x="970" y="293" text-anchor="middle" class="svg-n" font-size="14">Redis — cache + queue</text>
+      </g>
+
+      <line x1="1020" y1="322" x2="1020" y2="306" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      <text x="740" y="319" text-anchor="end" class="svg-s" font-size="12">upsert only what changed · blue-green on model change</text>
+
+      <g class="stage-node" data-panel="sy-ingest" data-label="Tier 4 · Ingestion pipeline">
+        <rect class="nbox" x="14" y="324" width="1086" height="54" rx="9"
+              fill="var(--surf)" stroke="var(--line2)" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <text x="32" y="345" class="svg-s" font-size="11">INGESTION</text>
+        <text x="32" y="362" class="svg-s" font-size="11">off the request path</text>
+        <rect x="270" y="334" width="180" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+        <text x="360" y="356" text-anchor="middle" class="svg-n" font-size="14">change capture</text>
+        <rect x="472" y="334" width="180" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+        <text x="562" y="356" text-anchor="middle" class="svg-n" font-size="14">chunk + hash</text>
+        <rect x="674" y="334" width="180" height="34" rx="6" fill="var(--ok-bg)" stroke="var(--ok)" stroke-width="1.4"/>
+        <text x="764" y="356" text-anchor="middle" class="svg-n" font-size="14">embed changed only</text>
+        <rect x="876" y="334" width="208" height="34" rx="6" fill="var(--deck)" stroke="var(--line2)" stroke-width="1.2"/>
+        <text x="980" y="356" text-anchor="middle" class="svg-n" font-size="14">versioned index swap</text>
+        <line x1="450" y1="351" x2="466" y2="351" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <line x1="652" y1="351" x2="668" y2="351" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+        <line x1="854" y1="351" x2="870" y2="351" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      </g>
+
+      <line x1="360" y1="386" x2="360" y2="372" stroke="var(--line2)" stroke-width="2" marker-end="url(#sa)"/>
+      <text x="374" y="386" class="svg-s" font-size="11">read from the platform · nightly, or when a record changes</text>
+
+      <g class="stage-node" data-panel="sy-sources" data-label="Tier 5 · Sources">
+        <rect class="nbox" x="14" y="388" width="686" height="50" rx="9"
+              fill="var(--surf2)" stroke="var(--line2)" stroke-width="1.5"/>
+        <text x="32" y="410" class="svg-l" font-size="15">University data platform</text>
+        <text x="32" y="428" class="svg-s" font-size="11.5">provided · course catalogue · regulations · research · stable for a semester</text>
+
+        <rect class="nbox" x="716" y="388" width="450" height="50" rx="9"
+              fill="var(--deck)" stroke="var(--s-uni)" stroke-width="1.8"/>
+        <text x="734" y="410" class="svg-l" font-size="15">Source systems</text>
+        <text x="734" y="428" class="svg-s" font-size="11.5">SIS · timetable · calendar · enrolment · changes hourly</text>
+      </g>
+
+      <path d="M1133,388 L1133,222 L682,222 L682,213" fill="none" stroke="var(--s-uni)"
+            stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#sb)"/>
+      <text transform="rotate(-90 1118 300)" x="1118" y="300" text-anchor="middle"
+            class="svg-s" font-size="12" fill="var(--s-uni)">called live · never embedded</text>
+    </svg>
+    <figcaption style="font-size:1.55cqw;color:var(--ink2);margin-top:.8cqw;line-height:1.3;">
+      Down is a request. Up is data. <b style="color:var(--ink)">The dashed line never gets stored.</b>
+    </figcaption>
+    </figure>
+    </div>
+
+    <div id="v-flow" class="viewpane">
+      <svg class="fig" id="flow" viewBox="0 0 1180 330" role="img" aria-label="An interactive eight-stage flow: student app, capability API, policy gate, context resolver, retrieval, tools, model, and groundedness gate. Step through each stage to see what happens; click a stage for its technical detail.">
+      <defs>
+        <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="var(--line2)"/>
+        </marker>
+      </defs>
+
+      <line x1="132" y1="115" x2="158" y2="115" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <line x1="292" y1="115" x2="318" y2="115" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <line x1="452" y1="115" x2="478" y2="115" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <path d="M662,95 C686,95 688,48 708,48" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <path d="M662,135 C686,135 688,196 708,196" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <path d="M846,48 C860,48 862,100 872,100" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <path d="M846,196 C860,196 862,132 872,132" fill="none" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+      <line x1="1006" y1="115" x2="1032" y2="115" stroke="var(--line2)" stroke-width="2" marker-end="url(#fa)"/>
+
+      <g class="stage-node" data-panel="f-client" data-label="Stage 1 · Client"
+         data-caption="A student asks <b>&ldquo;what should I take next semester?&rdquo;</b> from whatever app they already use — the portal, the LMS, their phone. No new destination to learn.">
+        <rect class="nbox" x="14" y="73" width="118" height="84" rx="10" fill="var(--surf2)" stroke="var(--line2)" stroke-width="1.6"/>
+        <text x="73" y="110" text-anchor="middle" class="svg-l" font-size="19">Student app</text>
+        <text x="73" y="133" text-anchor="middle" class="svg-s" font-size="13">any client</text>
+      </g>
+
+      <g class="stage-node" data-panel="f-api" data-label="Stage 2 · Capability API"
+         data-caption="One contract for every app: <b>ask · find · plan · recommend · assess</b>. Applications compose capabilities instead of each rebuilding a stack.">
+        <rect class="nbox" x="162" y="73" width="130" height="84" rx="10" fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="1.9"/>
+        <text x="227" y="110" text-anchor="middle" class="svg-l" font-size="19">Capability API</text>
+        <text x="227" y="133" text-anchor="middle" class="svg-s" font-size="13">one contract</text>
+      </g>
+
+      <g class="stage-node" data-panel="f-gate" data-label="Stage 3 · Policy gate"
+         data-caption="Who is asking, for what purpose, and what data class may be touched. <b>Answered before anything is fetched</b> — not filtered on the way out.">
+        <rect class="nbox" x="322" y="73" width="130" height="84" rx="10" fill="var(--risk-bg)" stroke="var(--risk)" stroke-width="1.8"/>
+        <text x="387" y="110" text-anchor="middle" class="svg-l" font-size="19">Policy gate</text>
+        <text x="387" y="133" text-anchor="middle" class="svg-s" font-size="13">identity · purpose</text>
+      </g>
+
+      <g class="stage-node" data-panel="f-context" data-label="Stage 4 · Context resolver"
+         data-caption="Five scopes — <b>user, project, program, university, global</b> — compete for one token budget, and each carries its own permission check. This is where personalization actually happens.">
+        <rect class="nbox" x="482" y="58" width="180" height="114" rx="10" fill="var(--deck)" stroke="var(--accent)" stroke-width="2.4"/>
+        <text x="572" y="95" text-anchor="middle" class="svg-l" font-size="19">Context resolver</text>
+        <text x="572" y="117" text-anchor="middle" class="svg-s" font-size="13">5 scopes · 1 budget</text>
+        <g>
+          <rect x="500" y="132" width="24" height="14" rx="3" fill="var(--s-user)"/>
+          <rect x="530" y="132" width="24" height="14" rx="3" fill="var(--s-proj)"/>
+          <rect x="560" y="132" width="24" height="14" rx="3" fill="var(--s-prog)"/>
+          <rect x="590" y="132" width="24" height="14" rx="3" fill="var(--s-uni)"/>
+          <rect x="620" y="132" width="24" height="14" rx="3" fill="var(--s-glob)"/>
+        </g>
+      </g>
+
+      <g class="stage-node" data-panel="f-retrieval" data-label="Stage 5 · Retrieval"
+         data-caption="Hybrid search over <b>what is stable</b> — course descriptions, learning outcomes, regulations. Keyword and meaning together, then reranked, always cited.">
+        <rect class="nbox" x="710" y="10" width="136" height="76" rx="10" fill="var(--ok-bg)" stroke="var(--ok)" stroke-width="1.8"/>
+        <text x="778" y="44" text-anchor="middle" class="svg-l" font-size="19">Retrieval</text>
+        <text x="778" y="66" text-anchor="middle" class="svg-s" font-size="13">hybrid · cited</text>
+      </g>
+
+      <g class="stage-node" data-panel="f-tools" data-label="Stage 6 · Tools"
+         data-caption="Deterministic calls for <b>what is volatile</b> — timetables, ECTS balance, enrolment. The model never computes these; it asks a system that knows.">
+        <rect class="nbox" x="710" y="158" width="136" height="76" rx="10" fill="var(--surf2)" stroke="var(--s-uni)" stroke-width="1.8"/>
+        <text x="778" y="192" text-anchor="middle" class="svg-l" font-size="19">Tools</text>
+        <text x="778" y="214" text-anchor="middle" class="svg-s" font-size="13">live · exact</text>
+      </g>
+
+      <g class="stage-node" data-panel="f-model" data-label="Stage 7 · Model"
+         data-caption="Routed by task, cost and <b>data residency</b> — a small model for classification, a mid-tier for grounded answers, frontier only where reasoning earns it.">
+        <rect class="nbox" x="874" y="73" width="132" height="84" rx="10" fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="1.9"/>
+        <text x="940" y="110" text-anchor="middle" class="svg-l" font-size="19">Model</text>
+        <text x="940" y="133" text-anchor="middle" class="svg-s" font-size="13">routed, not fixed</text>
+      </g>
+
+      <g class="stage-node" data-panel="f-ground" data-label="Stage 8 · Groundedness"
+         data-caption="Every claim checked against what was retrieved. Supported → answer with citations. Unsupported → <b>refuse and say so</b>. Being silent beats being confidently wrong to a student.">
+        <rect class="nbox" x="1034" y="63" width="136" height="104" rx="10" fill="var(--ok-bg)" stroke="var(--ok)" stroke-width="1.9"/>
+        <text x="1102" y="99" text-anchor="middle" class="svg-l" font-size="19">Groundedness</text>
+        <text x="1102" y="122" text-anchor="middle" class="svg-s" font-size="13">cite or refuse</text>
+        <text x="1102" y="142" text-anchor="middle" class="svg-s" font-size="13">→ answer</text>
+      </g>
+
+      <rect x="14" y="268" width="1156" height="42" rx="9" fill="var(--surf)" stroke="var(--line)" stroke-width="1.4" stroke-dasharray="6 5"/>
+      <text x="592" y="294" text-anchor="middle" class="svg-n" font-size="15">Evaluation · audit · cost accounting · erasure — running beside every stage</text>
+    </svg>
+      <div id="flowcap"></div>
+    <div class="flowctl">
+      <button id="flowprev">◀</button>
+      <button id="flownext">▶</button>
+      <button id="flowplay" class="primary">▶ Play</button>
+      <button id="flowreset">↻</button>
+      <span class="step" id="flowstep"></span>
+    </div>
+    </div>
+
+    <div id="v-run" class="viewpane">
+      <div class="grid2" style="gap:1.2cqw;">
+        <button class="hot tone-acc" data-panel="ar-style" data-label="Architectural style">
+          <span class="ht">Architecture style</span>
+          <span class="hs">derived, not chosen</span>
+          <ul>
+            <li><b>0.1 req/s</b> — no independent-scaling pressure</li>
+            <li><b>One engineer</b> — every deployable costs on-call surface</li>
+            <li><b>Permission is a join</b> — decentralised data is impossible</li>
+          </ul>
+        </button>
+
+        <button class="hot tone-acc" data-panel="ar-units" data-label="Deployment units">
+          <span class="ht">What actually deploys</span>
+          <span class="hs">seven parts, three services</span>
+          <ul>
+            <li><span class="mono" style="font-size:1.3cqw">api</span> — gateway, capability, policy, context, retrieval</li>
+            <li><span class="mono" style="font-size:1.3cqw">gpu-worker</span> — embed, rerank, groundedness</li>
+            <li><span class="mono" style="font-size:1.3cqw">batch-worker</span> — ingest, evaluation</li>
+          </ul>
+        </button>
+
+        <button class="hot tone-ok" data-panel="ar-obs" data-label="Observability">
+          <span class="ht">Observability</span>
+          <span class="hs">knowing at 3am</span>
+          <ul>
+            <li>Metrics · logs · traces · <b>evaluation telemetry</b></li>
+            <li>One trace spans retrieve → rerank → tools → model → gate</li>
+            <li><b>Four things page a human.</b> Everything else waits</li>
+          </ul>
+        </button>
+
+        <button class="hot tone-warn" data-panel="ar-degrade" data-label="Degradation &amp; SLO">
+          <span class="ht">When things break</span>
+          <span class="hs">degrade, don’t fail</span>
+          <ul>
+            <li>Reranker down → serve fused, log it. <b>Quality drops, service does not</b></li>
+            <li>Both model providers down → return sources, no synthesis</li>
+            <li>Tool down → <b>refuse.</b> Never a guess</li>
+          </ul>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-ar-style">
+      <h4>What kind of architecture is this?</h4>
+      <div class="say"><p>Modular monolith by data, service-oriented by deployment, event-driven only at the ingestion seam, ports-and-adapters inside. <b>None of that was chosen from a catalogue — it falls out of three forces.</b></p></div>
+      <table>
+        <thead><tr><th>Force</th><th>What it eliminates</th></tr></thead>
+        <tbody>
+          <tr><td><b>0.1 requests/second</b></td><td>The main reason for microservices — independent scaling — does not apply. Nothing here needs to scale away from anything else</td></tr>
+          <tr><td><b>One engineer</b></td><td>Every extra deployable is another pipeline, another dashboard, another way to be woken up. The cost is paid nightly</td></tr>
+          <tr><td><b>Permission is a relational join</b></td><td><b>Database-per-service</b> — which is the defining property of microservices, not an optional extra</td></tr>
+        </tbody>
+      </table>
+      <h5>So it is explicitly not microservices, and that is deliberate</h5>
+      <p>The ACL predicate joins chunks against enrolment and programme membership. Split that across services and the join becomes application-side fan-out: slower, and far easier to get subtly wrong in a way that leaks. <b>A shared database is the anti-pattern that defines microservices — so this is honestly not microservices, rather than microservices done badly.</b></p>
+      <h5>Nor is it a single monolith</h5>
+      <p>Two things genuinely justify splitting: the GPU workloads need <b>different hardware</b> from the API, and ingestion and evaluation must be <b>off the request path</b> so a slow pipeline never makes a student wait. Those are the only two splits the scale pays for.</p>
+      <h5>Where events belong</h5>
+      <div class="verdict"><p><b>Event-driven where producer and consumer have different clocks; synchronous where a human is waiting.</b> CDC events into a queue for ingestion — yes. An event bus in the request path — no: it would add latency and a correlation problem to a flow that is a simple request and response.</p></div>
+      <h5>And clean architecture is orthogonal</h5>
+      <p>Hexagonal / ports-and-adapters is the <i>internal</i> shape of each service, not a competitor to monolith or microservices. It is what makes the four-seams claim true rather than aspirational: <b>the model gateway, the MCP tool protocol, the catalogue contract and index versioning are ports</b>. Each has an adapter that can be swapped without touching the domain logic.</p>
+      <div class="verdict ok"><p>When this changes: if one capability's traffic diverges by roughly <b>10×</b> from the rest, extract it. If a <b>second team</b> appears, split on the team boundary — Conway's law wins whether or not you plan for it. Not before either of those.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-ar-units">
+      <h4>Seven components, three deployables</h4>
+      <div class="say"><p>The diagram shows logical components because that is what explains the design. <b>They deploy as three images</b> — drawing seven boxes and shipping seven services would be the mistake.</p></div>
+      <table>
+        <thead><tr><th>Deployable</th><th>Contains</th><th>Why separate</th></tr></thead>
+        <tbody>
+          <tr><td><b><span class="m">api</span></b> ×2</td><td>edge gateway, capability-svc, policy gate, context-svc, retrieval orchestration</td><td>the request path — stateless, scales on CPU</td></tr>
+          <tr><td><b><span class="m">gpu-worker</span></b> ×1</td><td>embeddings, cross-encoder reranker, groundedness model</td><td><b>different hardware.</b> One 24 GB card serves all three</td></tr>
+          <tr><td><b><span class="m">batch-worker</span></b> ×1</td><td>ingestion pipeline, evaluation scoring</td><td><b>off the request path.</b> Different lifecycle, different failure tolerance</td></tr>
+          <tr><td><i>tool-servers</i></td><td>MCP adapters over SIS, timetable, calendar</td><td>one per source system, each tiny — they follow the systems they wrap, not this codebase</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict"><p>Plus <b>Postgres</b> and <b>Redis</b>. Five processes and two stores is the whole production estate — which is what makes the one-engineer claim honest rather than brave.</p></div>
+      <h5>The test for adding a fourth</h5>
+      <p>A new deployable has to earn its on-call surface. It needs either different hardware, a different scaling curve, or a different failure tolerance. <b>&ldquo;It felt like a separate concern&rdquo; is a package boundary, not a deployment boundary.</b></p>
+    </div>
+
+    <div class="panel-src" id="p-ar-obs">
+      <h4>Observability — four pillars, because three are not enough here</h4>
+      <div class="say"><p>The deck claims one engineer operates this at 3am. <b>That claim is only honest if there is an answer to how they would know something broke</b> — and for an LLM system, uptime is the least interesting signal.</p></div>
+      <table>
+        <thead><tr><th>Pillar</th><th>Carries</th><th>Tool</th></tr></thead>
+        <tbody>
+          <tr><td><b>Metrics</b></td><td>latency p50/p95, error rate, queue depth, index freshness, <b>cost per request</b></td><td>Prometheus + Grafana</td></tr>
+          <tr><td><b>Logs</b></td><td>structured JSON, PII-scrubbed <i>before</i> writing, one line per decision</td><td>Loki</td></tr>
+          <tr><td><b>Traces</b></td><td>one span tree per request: context → retrieve → rerank → tools → model → gate</td><td>OpenTelemetry → Tempo</td></tr>
+          <tr><td><b>Evaluation</b></td><td>groundedness, citation validity, refusal rate, recall on the golden set</td><td>the eval worker, into Postgres</td></tr>
+        </tbody>
+      </table>
+      <h5>Why the fourth pillar is not optional</h5>
+      <p>A conventional stack tells you the service is up and fast. It cannot tell you the answers got worse — and <b>a confidently wrong answer to a student is a 200 OK in 1.2 seconds.</b> Quality is the signal that actually degrades here, so it is instrumented like a signal rather than reviewed like a report.</p>
+      <h5>Cost is a first-class signal, not a finance concern</h5>
+      <p>Every response already carries <span class="m">usage.cost_eur</span>. That makes cost-per-answer a time series you can alert on, and it is how a prompt change that quietly triples context length gets caught in hours rather than at the end of the month.</p>
+      <h5>Instrumentation standard</h5>
+      <p><b>OpenTelemetry</b> throughout, so the backend stays swappable — the same reason the model gateway exists. LLM calls use the <b>GenAI semantic conventions</b>: <span class="m">gen_ai.request.model</span>, <span class="m">gen_ai.usage.input_tokens</span> / <span class="m">output_tokens</span>, <span class="m">gen_ai.response.finish_reasons</span>, with <span class="m">chat</span> and <span class="m">execute_tool</span> spans.</p>
+      <div class="verdict warn"><p>Honest caveat: those GenAI conventions are <b>still under active development, not stable</b>. Adopting them means accepting some churn — worth it, because the alternative is inventing private attribute names that no tool will ever understand.</p></div>
+      <h5>What wakes a human — and nothing else does</h5>
+      <div class="verdict risk"><p>With one engineer the page list has to be short enough to trust. <b>Four things page:</b> the API is down, Postgres is down, the refusal rate crosses 25% (retrieval has failed, students are getting nothing), or groundedness falls below threshold on a rolling window (the system has started being wrong).</p></div>
+      <p>Everything else — a stale index, a rerank failure, a queue backlog, a cost spike — is a <b>dashboard and a morning ticket</b>. Waking someone for a degraded reranker trains them to ignore the pager, which is how the real incident gets missed.</p>
+      <div class="verdict"><p>Every response carries a <span class="m">trace_id</span>, and that is the thread that ties it together. A student complaint becomes: paste the id, see the exact scopes resolved, the chunks retrieved, the tools called, the prompt sent, the grounding score. <b>Debugging from evidence rather than from anecdote</b> — which is why this is built in Phase 0, before any feature.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-ar-degrade">
+      <h4>What it promises, and how it bends</h4>
+      <div class="say"><p>Degrade before failing. <b>A worse answer beats no answer — except where a worse answer means a wrong one</b>, and that line is drawn explicitly.</p></div>
+      <div class="kv">
+        <dt>availability</dt><dd>99.5% monthly on the capability API — about 3.6 hours. A study assistant is not life-critical, and promising four nines would cost more than it is worth here</dd>
+        <dt>latency</dt><dd>p95 under 3 s end to end, p50 ~1.35 s. First token at ~400 ms because answers stream</dd>
+        <dt>freshness</dt><dd>per-source SLA; a breach alerts and answers carry <span class="m">as_of</span> so staleness is visible rather than silent</dd>
+        <dt>error budget</dt><dd>spent on shipping; exhausted means the next sprint is reliability, not features</dd>
+      </div>
+      <h5>The degradation ladder</h5>
+      <table>
+        <thead><tr><th>Lost</th><th>Response</th><th>Student sees</th></tr></thead>
+        <tbody>
+          <tr><td>Reranker</td><td>serve fused results, log the degradation</td><td>slightly worse ordering</td></tr>
+          <tr><td>Primary model</td><td>gateway fails over to secondary</td><td>nothing</td></tr>
+          <tr><td>Both models</td><td>return retrieved sources, no synthesis</td><td>a reading list instead of an answer — <i>still useful</i></td></tr>
+          <tr><td>Redis</td><td>cache miss everywhere, queue drains to a Postgres table</td><td>slower, correct</td></tr>
+          <tr><td>Ingest worker</td><td>index goes stale, monitor alerts</td><td>older <span class="m">as_of</span> dates on citations</td></tr>
+          <tr><td><b>Tool server</b></td><td><b>refuse</b></td><td>&ldquo;I can't confirm that — ask your advisor&rdquo;</td></tr>
+          <tr><td>Postgres</td><td>read replica serves retrieval; writes and personalization pause</td><td>read-only mode</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict risk"><p>The ladder has one hard rung. Every other failure degrades gracefully; a <b>failed tool call refuses</b>, because the alternative is the model inventing a credit balance. Degrading into confident invention is the only failure mode that actually harms a student.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-sy-clients">
+      <h4>Tier 1 · Clients</h4>
+      <div class="say"><p>Every client — including ones that do not exist yet — consumes <b>the same five verbs</b>. None of them knows a model is involved.</p></div>
+      <h5>What a client is allowed to know</h5>
+      <ul>
+        <li>The <b>capability contract</b> — five verbs, one response shape</li>
+        <li>Its own OIDC token. <b>Never a subject id it chose</b>: the subject is resolved server-side</li>
+        <li>Nothing about retrieval, prompts, models, scopes or indexes</li>
+      </ul>
+      <h5>The dashed clients</h5>
+      <p>Staff workplace and public site are drawn dashed because they are <b>not built yet and need no new build</b> — they differ only in which scopes their tokens may reach. Reuse for staff and the public, answered by the diagram rather than by a promise.</p>
+      <div class="vs"><p><b>A dedicated AI portal.</b> It is the most visible thing to build and the one students are least likely to open. Adoption is decided the day you choose a destination over a capability.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-sy-layer">
+      <h4>Tier 2 · The seven services</h4>
+      <div class="say"><p>Each owns one decision. <b>None of them owns state</b> — that is the whole reason the layer can be redeployed, rolled back, or scaled a service at a time.</p></div>
+      <table>
+        <thead><tr><th>Service</th><th>Owns</th><th>If it fails</th></tr></thead>
+        <tbody>
+          <tr><td><b>edge-gateway</b></td><td>authn, rate limit</td><td>hard stop — nothing reaches the layer</td></tr>
+          <tr><td><b>capability-svc</b></td><td>orchestrates one request</td><td>hard stop, but stateless — restart is instant</td></tr>
+          <tr><td><b>policy gate</b></td><td>identity × purpose × data class</td><td><b>fail closed</b>, always</td></tr>
+          <tr><td><b>context-svc</b></td><td>scope resolution, ACL, token budget</td><td>fail closed — no context, no answer</td></tr>
+          <tr><td><b>retrieval-svc</b></td><td>hybrid search, rerank</td><td>degrade: skip rerank, serve fused, log it</td></tr>
+          <tr><td><b>tool-servers</b></td><td>deterministic facts</td><td><b>refuse — never substitute a model answer</b></td></tr>
+          <tr><td><b>llm-gateway</b></td><td>routing, failover, cost accounting</td><td>fail to secondary; if both down, return sources unsynthesised</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict"><p>Groundedness is a step inside capability-svc, not an eighth deployment — it is one model call on the completed answer, and putting it in its own service would add a hop to every single request for no isolation benefit.</p></div>
+      <details>
+        <summary>Show one request, call by call</summary>
+        <table>
+          <thead><tr><th>#</th><th>Call</th><th class="num">ms</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><b>edge-gateway</b> — verify OIDC, rate-limit bucket</td><td class="num">4</td></tr>
+            <tr><td>2</td><td><b>capability-svc</b> — cache lookup on <span class="m">hash(query+subject+scopes)</span></td><td class="num">3</td></tr>
+            <tr><td>3</td><td><b>context-svc</b> — resolve 5 scopes, ACL per scope, allocate budget</td><td class="num">18</td></tr>
+            <tr><td>4</td><td><b>retrieval-svc</b> — BM25 + vector in one SQL round trip, RRF fuse</td><td class="num">35</td></tr>
+            <tr><td>5</td><td><b>reranker</b> — cross-encoder, 50 → 8</td><td class="num">70</td></tr>
+            <tr><td>6</td><td><b>tool-servers</b> — parallel, e.g. <span class="m">check_prerequisites</span></td><td class="num">60</td></tr>
+            <tr><td>7</td><td><b>llm-gateway</b> — mid-tier model, streamed</td><td class="num">900</td></tr>
+            <tr><td>8</td><td><b>groundedness</b> — entailment over 3 claims</td><td class="num">180</td></tr>
+            <tr><td></td><td><b>Total, p50</b></td><td class="num"><b>~1.3 s</b></td></tr>
+          </tbody>
+        </table>
+        <p>The model is <b>70% of the budget</b>, which is why routing matters more than micro-optimising retrieval, and why the cache is checked before anything else runs.</p>
+      </details>
+      <details>
+        <summary>Show what it runs on</summary>
+        <div class="kv">
+          <dt>compute</dt><dd>2 application nodes (4 vCPU / 16 GB) + 1 database node (8 vCPU / 32 GB)</dd>
+          <dt>GPU</dt><dd>1 × 24 GB — embeddings, reranker, groundedness model</dd>
+          <dt>replicas</dt><dd>capability-svc ×2, retrieval-svc ×2, workers ×1 each</dd>
+          <dt>deploy</dt><dd>Helm chart, GitOps, probes, <span class="m">maxUnavailable: 0</span>, rollback by git revert</dd>
+        </div>
+        <p>1,000 students at ~10 interactions a day is <b>0.1 requests per second average</b>, maybe 5/s at a registration peak. Sizing this as a distributed-systems problem would be the most expensive mistake available.</p>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-sy-state">
+      <h4>Tier 3 · One store, on purpose</h4>
+      <div class="say"><p>Vectors, keyword index, access-control rows and enrolment all live in <b>one database</b> — because the permission predicate is a join, and a join across two systems is application-side fan-out.</p></div>
+      <div class="kv">
+        <dt>chunks</dt><dd>content, <span class="m">halfvec(1024)</span>, BM25 index, <span class="m">as_of</span>, <span class="m">model_version</span></dd>
+        <dt>ACL</dt><dd><span class="m">scope</span>, <span class="m">subject_id</span>, <span class="m">visibility</span>, <span class="m">entity_ids</span></dd>
+        <dt>traces</dt><dd>every response's citations, grounding score, cost, <span class="m">trace_id</span></dd>
+        <dt>Redis</dt><dd>response cache and the ingest/eval queues — <b>never the source of truth</b></dd>
+      </div>
+      <div class="verdict risk"><p>The cache key is <span class="m">hash(query + subject + resolved scopes)</span>. Two students asking the same thing do <b>not</b> share an entry unless their scopes match — a shared cache across subjects is a data leak wearing a performance costume.</p></div>
+      <h5>~40 GB at 10⁶ chunks</h5>
+      <p>Index RAM-resident, one backup regime, one restore drill, one consistency story. At this corpus size a dedicated vector store buys nothing and costs the joins the ACL depends on.</p>
+    </div>
+
+    <div class="panel-src" id="p-sy-ingest">
+      <h4>Tier 4 · The pipeline, off the request path</h4>
+      <div class="say"><p>Nothing here runs while a student waits. A slow or failed pipeline makes answers <b>stale and visibly so</b> — it never makes them slow.</p></div>
+      <div class="kv">
+        <dt>change capture</dt><dd>CDC on source tables, or a content-hash diff if the platform has no CDC</dd>
+        <dt>chunk + hash</dt><dd>one record = one chunk, deterministic id, <span class="m">sha256</span> of the text</dd>
+        <dt>embed changed</dt><dd>unchanged → skip · moved → copy the vector · changed → re-embed · deleted → hard delete</dd>
+        <dt>index swap</dt><dd>versioned; a new embedding model means blue-green, never in-place</dd>
+      </div>
+      <h5>Why hashing is the whole trick</h5>
+      <p>It makes the pipeline <b>idempotent and cheap</b>. Re-running the same window changes nothing; a typical night re-embeds tens of records rather than the corpus. Re-embedding everything nightly costs real money and burns a rate limit for no benefit.</p>
+      <div class="verdict warn"><p>Every chunk carries <span class="m">as_of</span>. A source that misses its freshness SLA raises an alert, and answers drawn from stale chunks say so. This is the direct countermeasure to the stale-answer-library failure that has already harmed students elsewhere.</p></div>
+      <details>
+        <summary>Show the decision</summary>
+<pre><b>for</b> row <b>in</b> cdc_changes(since=last_watermark):
+    cid, text = build_chunk(row)
+    h = sha256(text)
+    prev = index.get_hash(cid)
+
+    <b>if</b> prev == h:                     <i># unchanged</i>
+        continue
+    <b>elif</b> vec := index.find_by_hash(h):
+        index.upsert(cid, vec)         <i># moved: copy, don't re-embed</i>
+    <b>else</b>:
+        index.upsert(cid, embed(text))  <i># new or changed</i>
+
+<b>for</b> cid <b>in</b> deleted_ids(since=last_watermark):
+    index.hard_delete(cid)             <i># not a tombstone</i></pre>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-sy-sources">
+      <h4>Tier 5 · Two classes of source, and the line between them</h4>
+      <div class="say"><p>The dashed arrow is the design. <b>Volatile and personal data skips the pipeline and the index entirely</b> and is fetched live, at request time, by a tool call.</p></div>
+      <table>
+        <thead><tr><th>Source</th><th>Path</th><th>Freshness</th></tr></thead>
+        <tbody>
+          <tr><td><b>Course catalogue</b></td><td>embedded</td><td>nightly, or on a change event</td></tr>
+          <tr><td><b>Regulations, Studienpläne</b></td><td>embedded</td><td>weekly — changes rarely, matters hugely</td></tr>
+          <tr><td><b>Research outputs, staff expertise</b></td><td>embedded</td><td>weekly</td></tr>
+          <tr><td><b>Student profiles, transcript</b></td><td><b>called live</b></td><td>real time — never embedded</td></tr>
+          <tr><td><b>Timetables, enrolment, deadlines</b></td><td><b>called live</b></td><td>real time — never embedded</td></tr>
+        </tbody>
+      </table>
+      <h5>Two reasons, and the second is the one people miss</h5>
+      <ul>
+        <li><b>It would be wrong.</b> A timetable embedded this morning is stale this afternoon, and a vector index has no concept of &ldquo;this fact expired&rdquo;.</li>
+        <li><b>Permissions.</b> A live call <b>inherits the source system's existing access control</b>. Embedding the same data forces that permission model to be rebuilt inside a vector store and kept in agreement forever — which is exactly where student-data leaks come from.</li>
+      </ul>
+      <div class="verdict"><p>Student profiles sit across the line — personal <i>and</i> volatile. They are called, not embedded: the safer side of an ambiguous case.</p></div>
+      <div class="verdict warn"><p>The platform box is drawn as <b>provided, not built</b>. The design assumes the university gives access to it. A self-managed lakehouse is a 3–6 engineer, six-month project and is not this role's job — what I own is everything above that line.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-client">
+      <h4>Stage 1 · Any client</h4>
+      <div class="say"><p>A student asks from whatever app they already use. <b>No new destination to learn.</b></p></div>
+      <ul>
+        <li>The layer ships an <b>API and an embeddable widget</b></li>
+        <li>Identity comes from <b>existing university SSO</b> — no second login</li>
+        <li>Future clients, the staff tier and the public tier all consume the same contract</li>
+      </ul>
+      <div class="vs"><p><b>A new AI portal.</b> It competes with the LMS students already live in, and adoption is the hardest part of any university tool.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-api">
+      <h4>Stage 2 · Capability API</h4>
+      <div class="say"><p>Five verbs — <b>ask, find, plan, recommend, assess</b>. Apps compose capabilities instead of each rebuilding a stack.</p></div>
+      <ul>
+        <li>Apps never touch <b>retrieval, models or prompts</b></li>
+        <li>Improving retrieval improves <b>every app at once</b></li>
+        <li><span class="m">OpenAPI</span> for apps, <span class="m">MCP</span> for agents — two front doors, one capability</li>
+      </ul>
+      <div class="verdict"><p>This is the <b>modular seam</b> this design is built around. A new app is a client, not a project.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-gate">
+      <h4>Stage 3 · Policy gate</h4>
+      <div class="say"><p>Most designs scrub PII on the way out. This one decides <b>what may be reached on the way in</b> — a librarian checking your ID before the assistant fetches the books.</p></div>
+      <h5>Three questions, answered before anything is fetched</h5>
+      <ul>
+        <li><b>Identity</b> — who is asking, from university SSO</li>
+        <li><b>Purpose</b> — what this capability may do with that identity</li>
+        <li><b>Classification</b> — which data classes are in play at all</li>
+      </ul>
+      <div class="vs"><p><b>PII detection as the boundary.</b> The best open detectors reach roughly <b>0.54 F1</b> and German is barely tested. Detection is useful defence in depth; it cannot be the control.</p></div>
+      <div class="verdict risk"><p>A detector that misses a third of what it looks for is indefensible as a gate. <b>Access control can be the gate.</b> Scrubbing still runs — before logging, and before any external call.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-context">
+      <h4>Stage 4 · Context resolver</h4>
+      <div class="say"><p>Five scopes compete for <b>one token budget</b>, and each carries its own permission check. This is where personalization actually happens.</p></div>
+      <div class="kv">
+        <dt>user</dt><dd>transcript, interests, own record</dd>
+        <dt>project</dt><dd>current work, collaborators</dd>
+        <dt>program</dt><dd>curriculum, prerequisites, ECTS model</dd>
+        <dt>university</dt><dd>staff, research, policy, deadlines</dd>
+        <dt>global</dt><dd>public external knowledge</dd>
+      </div>
+      <div class="verdict ok"><p>Because a scope is also a permission boundary, <b>personalization and data protection become one mechanism</b> — not two systems that must be kept in agreement.</p></div>
+      <p class="m" style="font-size:12px;color:var(--ink3)">The live demo is on the AI integration slide.</p>
+    </div>
+
+    <div class="panel-src" id="p-f-retrieval">
+      <h4>Stage 5 · Retrieval</h4>
+      <div class="say"><p>Hybrid, because students type <b>course codes and German compounds</b>, not just concepts.</p></div>
+      <div class="kv">
+        <dt>dense</dt><dd>meaning — &ldquo;courses about machine ethics&rdquo;</dd>
+        <dt>sparse</dt><dd>exact tokens — <span class="m">INF.02.014</span></dd>
+        <dt>fuse</dt><dd>reciprocal rank fusion, k=60</dd>
+        <dt>rerank</dt><dd>cross-encoder, top-50 → top-8</dd>
+      </div>
+      <div class="vs"><p><b>Dense vectors alone.</b> They fail on exactly what a student is most confident typing — and that is the least forgivable place to fail.</p></div>
+      <div class="verdict warn"><p><b>Open risk:</b> whether the BM25 extension decompounds German. If <span class="m">Lehrveranstaltungsanmeldung</span> does not match <span class="m">Anmeldung</span>, half the corpus quietly degrades. Load-bearing, and the one thing I could not verify from outside.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-tools">
+      <h4>Stage 6 · Tools</h4>
+      <div class="say"><p>Don't ask the model to guess a student's record. <b>Give it tools that can check.</b></p></div>
+      <h5>What is a tool call, never a generation</h5>
+      <ul>
+        <li>Remaining <b>ECTS</b> and credit arithmetic</li>
+        <li><b>Prerequisite</b> satisfaction</li>
+        <li><b>Timetable</b> conflicts and room bookings</li>
+        <li><b>Graduation</b> eligibility</li>
+      </ul>
+      <h5>Why this beats hallucination detection</h5>
+      <p>It removes an entire class of confident wrong answers <b>by construction</b>, rather than catching them afterwards. A student told they have 12 credits left when they have 24 has been harmed regardless of how good the eval harness is.</p>
+      <div class="vs"><p><b>Embedding the timetable.</b> An embedded timetable is wrong within hours — which is precisely how California's community colleges gave students wrong financial-aid hours from a stale answer library.</p></div>
+      <div class="verdict ok"><p>Each tool is an <span class="m">MCP</span> server with a typed schema. Adding the library system, or replacing the SIS, means <b>registering a tool — not modifying the agent</b>.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-model">
+      <h4>Stage 7 · Model</h4>
+      <div class="say"><p>You don't send a Ferrari to deliver pizza. <b>Route by task, cost and residency</b> — most student traffic never needs a frontier model.</p></div>
+      <div class="kv">
+        <dt>classify</dt><dd>small, fast — routing and intent</dd>
+        <dt>answer</dt><dd>mid-tier, grounded and cited</dd>
+        <dt>reason</dt><dd>frontier, only for path synthesis</dd>
+        <dt>embed &amp; check</dt><dd>self-hosted, multilingual DE/EN</dd>
+      </div>
+      <h5>The constraint that actually decides it</h5>
+      <p>Student data is personal data processed under a <b>public-task basis</b>, so EU-resident inference is a requirement, not a preference. That narrows the field before any benchmark does.</p>
+      <p>US hyperscalers remain subject to the <b>CLOUD Act</b> wherever the servers sit. Whether that disqualifies them is a governance decision, not an engineering one — my job is to make sure the question gets asked.</p>
+      <div class="verdict"><p>Everything speaks one OpenAI-compatible gateway, so swapping providers is a config change. <b>The moat is the context layer, not the model.</b></p></div>
+    </div>
+
+    <div class="panel-src" id="p-f-ground">
+      <h4>Stage 8 · Cite, or refuse</h4>
+      <div class="say"><p>Every claim is checked against what was retrieved before the answer leaves. <b>An honest &lsquo;I don't know&rsquo; is a feature.</b></p></div>
+      <div class="kv">
+        <dt>every call</dt><dd>cheap entailment check — well under a second</dd>
+        <dt>~2% sample</dt><dd>LLM-as-judge with claim decomposition — tens of seconds</dd>
+        <dt>pre-merge</dt><dd>golden-set regression, blocks the pull request</dd>
+      </div>
+      <h5>Why not judge everything</h5>
+      <p>A purpose-built entailment model runs in ~0.6s and costs nothing per call. An LLM judge on the same check takes ~35s and costs per token. <b>Cheap gate on all traffic, expensive judge on a sample</b> — because a check you can only afford sometimes means most answers go unchecked.</p>
+      <div class="verdict ok"><p>When evidence is missing the system says so and points to a human advisor. A refusal is logged as <b>a retrieval failure to investigate</b>, not as a successful safety event.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-wy-dest">
+      <h4>Capabilities, not destinations</h4>
+      <div class="say"><p>We don't build a new destination. We build <b>capabilities that surface inside the apps students already use</b>.</p></div>
+      <h5>What ships</h5>
+      <ul>
+        <li>A <b>capability API</b> — REST, documented as OpenAPI</li>
+        <li>A small <b>embeddable widget</b> for chat and search surfaces</li>
+        <li>Nothing else. No portal, no dashboard, no new login</li>
+      </ul>
+      <h5>Why this is an engineering decision, not a marketing one</h5>
+      <p>A new destination competes for attention with the LMS. Low adoption cannot be fixed by a later sprint — it is decided the day you choose to build a portal.</p>
+      <div class="vs"><p><b>An AI portal.</b> It is the most visible thing you can build and the one students are least likely to open.</p></div>
+      <div class="verdict ok"><p>Consequence: every client — including ones that do not exist yet, and the staff and public tiers later — consumes <b>the same contract</b>.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-wy-verbs">
+      <h4>Five verbs, one contract</h4>
+      <div class="say"><p>Think of a TV remote. You don't need to know how the circuits work — you press a button. Apps press <b>five buttons</b>.</p></div>
+      <div class="kv">
+        <dt>ask()</dt><dd>grounded answer with citations</dd>
+        <dt>find()</dt><dd>ranked people, resources, courses</dd>
+        <dt>plan()</dt><dd>conflict-checked schedule options</dd>
+        <dt>recommend()</dt><dd>next steps, competency gaps</dd>
+        <dt>assess()</dt><dd>skills evidence and progress</dd>
+      </div>
+      <h5>Why this is the modular seam</h5>
+      <ul>
+        <li>Apps never touch <b>retrieval, models or prompts</b> directly</li>
+        <li>Improving retrieval improves <b>every app at once</b></li>
+        <li>A new app is a <b>client</b>, not a project</li>
+        <li>Swapping the model provider is a config change, invisible to clients</li>
+      </ul>
+      <h5>Two front doors</h5>
+      <p><span class="m">OpenAPI</span> for applications, <span class="m">MCP</span> for agents. Same capability, two protocols — so an internal agent and the student portal call the identical thing.</p>
+      <details>
+        <summary>Show the contract</summary>
+<pre><b>POST</b> /v1/capability/ask
+{
+  "query": "Kann ich Machine Learning ohne Statistik belegen?",
+  "subject_id": "s-8842",      <i>// from the token, never trusted from the body</i>
+  "scopes": ["user","program","university"],
+  "max_context_tokens": 6000
+}</pre>
+<pre><b>200 OK</b>
+{
+  "answer": "Nein — INF.02.014 setzt STA.01.002 voraus…",
+  "citations": [{"chunk_id":"crs:INF.02.014#prereq","as_of":"2026-09-01"}],
+  "tool_calls": [{"tool":"check_prerequisites",
+                  "result":{"satisfied":false,"missing":["STA.01.002"]}}],
+  "grounding": {"score":0.94,"verdict":"supported"},
+  "usage":     {"context_tokens":4310,"cost_eur":0.0041},
+  "trace_id":  "01JB2X…"
+}</pre>
+<pre><i>// refusal is a first-class response, not an error</i>
+{
+  "answer": null,
+  "refusal": {"reason":"insufficient_evidence",
+              "guidance":"Ask your programme advisor"},
+  "grounding": {"score":0.41,"verdict":"unsupported"}
+}</pre>
+      </details>
+      <div class="verdict"><p>Every response carries <b>citations, a grounding score, cost and a trace id</b>. That is what makes it auditable under the AI Act and debuggable at 2am — a contract decision, not a logging afterthought.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-wy-features">
+      <h4>Five features — four different kinds of problem</h4>
+      <div class="say"><p>These aren't five versions of the same thing. Two are pure retrieval, one is arithmetic, two are genuinely generative. <b>That difference is the roadmap.</b></p></div>
+      <table>
+        <thead><tr><th>Feature</th><th>Really is</th><th>Ships</th></tr></thead>
+        <tbody>
+          <tr><td><b>Find experts &amp; resources</b></td><td>retrieval — the citation <i>is</i> the answer</td><td>first</td></tr>
+          <tr><td><b>Plan activities</b></td><td>arithmetic — ECTS, clashes, deadlines</td><td>first</td></tr>
+          <tr><td><b>Study questions</b></td><td>RAG + a groundedness gate</td><td>second</td></tr>
+          <tr><td><b>Skills &amp; competencies</b></td><td>matching against a controlled vocabulary</td><td>last</td></tr>
+          <tr><td><b>Learning paths</b></td><td>the only true agent — tools decide, model explains</td><td>last</td></tr>
+        </tbody>
+      </table>
+      <h5>The ordering rule</h5>
+      <p>Ship in order of <b>what you can check</b>. Find and plan are verifiable by the student in one click, and low harm if imperfect. Paths and competencies are where a wrong answer changes what a student does with a year of their life.</p>
+      <div class="verdict risk"><p>Shipping learning paths first would make the best demo and the worst engineering decision. It also plausibly lands in <b>EU AI Act Annex III(3)</b>.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="AI integration" data-key="ai"
+  data-budget="2.5 min">
+  <div class="tag">AI Integration Strategy</div>
+  <h2>Who sees what</h2>
+  <p class="sub">Personalisation and privacy, one mechanism</p>
+
+  <div class="body" style="justify-content:flex-start;">
+    <div style="display:flex;gap:.7cqw;flex-wrap:wrap;margin-bottom:1.4cqw;" id="cxq"></div>
+
+    <div style="display:grid;grid-template-columns:1.3fr .82fr;gap:2cqw;align-items:start;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.7cqw;">
+          <span class="mono" style="font-size:1.08cqw;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)">Scope allocation</span>
+          <span class="mono" style="font-size:1.12cqw;color:var(--ink3)" id="cxtot"></span>
+        </div>
+        <div id="cxrows" style="display:flex;flex-direction:column;gap:1.05cqw;"></div>
+      </div>
+      <div id="cxout"></div>
+    </div>
+
+    <div class="grid3" style="margin-top:1.1cqw;">
+      <button class="hot tone-acc" data-panel="ai-route" data-label="Model routing">
+        <span class="ht">Route by task</span>
+        <span class="hs">small, mid, frontier</span>
+      </button>
+      <button class="hot tone-ok" data-panel="ai-rag" data-label="RAG">
+        <span class="ht">RAG</span>
+        <span class="hs">grounded and cited</span>
+      </button>
+      <button class="hot tone-warn" data-panel="ai-orch" data-label="Orchestration">
+        <span class="ht">Orchestration</span>
+        <span class="hs">typed agents · one gateway</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-ai-route">
+      <h4>Route by task, cost and residency</h4>
+      <div class="say"><p>You don't send a Ferrari to deliver pizza. <b>Most student traffic never needs a frontier model</b> — and the constraint that actually decides the shortlist is not the leaderboard.</p></div>
+      <div class="kv">
+        <dt>classify</dt><dd>small, fast — intent, routing, query rewriting, language detection. Majority of calls by count, a rounding error by cost</dd>
+        <dt>answer</dt><dd>mid-tier, grounded and cited. Because it synthesises <b>from supplied evidence</b> rather than from recall, it performs close to frontier at a fraction of the cost</dd>
+        <dt>reason</dt><dd>frontier, reserved for learning-path synthesis — the one place where frontier capability changes the outcome rather than the prose</dd>
+        <dt>embed &amp; check</dt><dd>self-hosted: embeddings, cross-encoder reranker, groundedness model. These run on <b>every request</b>, so per-token pricing compounds fastest here</dd>
+      </div>
+      <h5>The constraint that decides it</h5>
+      <p>Student data is personal data processed under a public-task basis, so <b>EU-resident inference is a requirement, not a preference</b>. That narrows the field before any benchmark does.</p>
+      <p>US hyperscalers remain within <b>CLOUD Act</b> reach wherever the servers sit. Whether that disqualifies them is a governance decision, not an engineering one — the job is to make sure the question gets asked.</p>
+      <div class="verdict warn"><p>Licence check, not an afterthought: several of the strongest embedding and reranking models are <b>CC-BY-NC</b>, which a public university service cannot cleanly claim. Apache-2.0 or MIT only — a real constraint that eliminated the top scorer.</p></div>
+      <div class="verdict"><p>Everything speaks one OpenAI-compatible gateway, so swapping providers is a config change. <b>The moat is the context layer, not the model.</b></p></div>
+    </div>
+
+    <div class="panel-src" id="p-ai-rag">
+      <h4>RAG, and where it is the wrong tool</h4>
+      <div class="say"><p>Retrieval-augmented answering for study questions — and for expert finding, <b>no generative step at all</b>, because the citation <i>is</i> the answer.</p></div>
+      <div class="kv">
+        <dt>retrieve</dt><dd>hybrid + rerank over embedded policy, regulations, course content</dd>
+        <dt>call</dt><dd>tools for anything personal or volatile</dd>
+        <dt>compose</dt><dd>mid-tier model, cite or refuse, typed output via Pydantic</dd>
+        <dt>gate</dt><dd>entailment check on every claim before the answer returns</dd>
+      </div>
+      <h5>Where generation would add risk without adding information</h5>
+      <p><b>Finding experts, partners and resources</b> is a ranked list of real people and real papers. Hybrid retrieval plus a cross-encoder rerank, and nothing generative in the core path. Correctness is checkable by the student in one click.</p>
+      <p><b>Planning activities</b> is barely an LLM problem at all — conflicts, deadlines and ECTS arithmetic are queries. The model formats the answer; it never computes it.</p>
+      <div class="verdict"><p>Knowing when deterministic software beats a model is part of the answer. Proposing an LLM to detect a timetable clash would be a worse solution, not a more impressive one.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-ai-orch">
+      <h4>Orchestration — typed, and replaceable</h4>
+      <div class="say"><p>The framework is the part you throw away. <b>The gateway and the tool protocol are what keep everything else reversible.</b></p></div>
+      <div class="kv">
+        <dt>PydanticAI</dt><dd>agents with typed, validated outputs — malformed output fails loudly instead of silently</dd>
+        <dt>LiteLLM</dt><dd>one OpenAI-compatible gateway: routing, failover, cost accounting, provider as config</dd>
+        <dt>MCP</dt><dd>every tool a typed schema — adding the library system or replacing the SIS means <b>registering a tool, not modifying the agent</b></dd>
+      </div>
+      <h5>What the model is not allowed to do</h5>
+      <ul>
+        <li>Compute remaining <b>ECTS</b> or check a prerequisite</li>
+        <li>Decide eligibility, or whether two courses clash</li>
+        <li>Substitute an answer for a failed tool call — that produces a <b>refusal</b></li>
+      </ul>
+      <div class="vs"><p><b>LangChain.</b> Its abstraction depth exceeds what this system needs and debugging through it costs more than it saves at this scale. Haystack or LlamaIndex would both work — if the team already knows one, that beats my preference.</p></div>
+      <div class="verdict ok"><p>The only genuine agent in the system is learning-path synthesis. <b>Code decides</b> eligibility, prerequisites, credit maths and clashes; <b>the model decides</b> ordering, framing and explanation. It can propose a bad-but-legal path; it cannot propose an impossible one.</p></div>
+    </div>
+  </div>
+<script>
+  (function(){
+    var BUDGET = 6000;
+    var S = [
+      {id:'user',n:'User',c:'--s-user'},{id:'project',n:'Project',c:'--s-proj'},
+      {id:'program',n:'Program',c:'--s-prog'},{id:'university',n:'University',c:'--s-uni'},
+      {id:'global',n:'Global',c:'--s-glob'}
+    ];
+    var C = [
+      { q:'What should I take next semester?',
+        a:{user:1800,project:400,program:2200,university:900,global:0},
+        w:{user:'transcript · completed ECTS · interests',project:'current project topic',program:'curriculum · prerequisites · ECTS model',university:'registration windows · deadlines',global:'not needed'},
+        s:{global:'skip'},
+        o:['ok','Answers with a shortlist','Prerequisites, credits and clashes are checked by tool calls. The model orders and explains; it never decides eligibility.'] },
+      { q:'Who works on federated learning here?',
+        a:{user:200,project:600,program:0,university:3400,global:800},
+        w:{user:'my field — ranking only',project:'what the project needs',program:'not relevant',university:'staff profiles · research outputs',global:'public external collaborators'},
+        s:{program:'skip'},
+        o:['ok','Answers with names and sources','Pure retrieval. Real researchers, real outputs, links included — generation would add risk without adding information.'] },
+      { q:'Why did Lena get a higher grade than me?',
+        a:{user:1200,project:0,program:800,university:0,global:0},
+        w:{user:'my own record and feedback',project:'not relevant',program:'grading regulations · assessment criteria',university:'another student’s record — denied',global:'not relevant'},
+        s:{university:'deny',project:'skip',global:'skip'},
+        o:['risk','Refuses, and says why','The answer sits in a scope this student has no right to. The ACL denies at resolution, so it is never retrieved. The reply explains the grading criteria and points to the course advisor.'] }
+    ];
+    var qw=document.getElementById('cxq'), rw=document.getElementById('cxrows'),
+        tt=document.getElementById('cxtot'), ot=document.getElementById('cxout');
+
+    function draw(n){
+      var c=C[n];
+      [].forEach.call(qw.children,function(b,k){
+        b.style.background = k===n?'var(--accent)':'var(--surf)';
+        b.style.color      = k===n?'#fff':'var(--ink2)';
+        b.style.borderColor= k===n?'var(--accent)':'var(--line)';
+      });
+      var used=S.reduce(function(s,x){return s+(c.a[x.id]||0);},0);
+      tt.textContent = used.toLocaleString()+' / '+BUDGET.toLocaleString()+' tokens';
+      rw.innerHTML = S.map(function(x){
+        var v=c.a[x.id]||0, st=(c.s&&c.s[x.id])||(v>0?'in':'skip'), pct=Math.round(v/BUDGET*100);
+        var tag = st==='deny' ? '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.02cqw;background:var(--risk-bg);color:var(--risk);padding:.25cqw .65cqw;border-radius:99px">denied</span>'
+                : st==='skip' ? '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.02cqw;color:var(--ink3)">—</span>'
+                : '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.02cqw;background:var(--ok-bg);color:var(--ok);padding:.25cqw .65cqw;border-radius:99px">in</span>';
+        var fill = st==='deny'
+          ? 'width:100%;background:repeating-linear-gradient(45deg,var(--risk-bg),var(--risk-bg) 4px,transparent 4px,transparent 8px);border:1px solid var(--risk);'
+          : 'width:'+pct+'%;background:var('+x.c+');';
+        return '<div style="display:grid;grid-template-columns:8.4cqw 1fr 5cqw;gap:1cqw;align-items:center">'
+          +'<div class="mono" style="font-size:1.18cqw;color:var('+x.c+');font-weight:600">'+x.n+'</div>'
+          +'<div><div style="height:1.25cqw;background:var(--surf2);border-radius:99px;overflow:hidden">'
+          +'<div style="height:100%;border-radius:99px;transition:width .4s ease;'+fill+'"></div></div>'
+          +'<div style="font-size:1.08cqw;color:var(--ink3);margin-top:.18cqw">'+c.w[x.id]+'</div></div>'
+          +'<div style="text-align:right">'+tag+'</div></div>';
+      }).join('');
+      var o=c.o;
+      ot.innerHTML = '<div class="hot" style="cursor:default;border-left:.4cqw solid '
+        +(o[0]==='risk'?'var(--risk)':'var(--ok)')+';padding:1.9cqw 1.9cqw">'
+        +'<span class="ht" style="font-size:2.7cqw;line-height:1.08">'+o[1]+'</span></div>';
+      var oc=ot.querySelector('.hot'); oc.style.pointerEvents='none'; oc.style.setProperty('--noplus','1'); oc.classList.add('noplus');
+    }
+    C.forEach(function(c,k){
+      var b=document.createElement('button'); b.type='button'; b.textContent=c.q;
+      b.style.cssText='font-family:inherit;font-size:1.26cqw;padding:.65cqw 1.2cqw;border-radius:99px;border:1px solid var(--line);cursor:pointer;background:var(--surf);color:var(--ink2);';
+      b.addEventListener('click',function(){ draw(k); });
+      qw.appendChild(b);
+    });
+    draw(0);
+  })();
+  </script>
+</section>
+
+<section class="slide" data-section="Data &amp; retrieval" data-key="data"
+  data-budget="2.5 min">
+  <div class="tag">Data, storage &amp; retrieval</div>
+  <h2>Data &amp; retrieval</h2>
+  <p class="sub">Store what is stable &middot; ask for what changes</p>
+
+  <div class="body">
+    <div class="grid2" style="gap:1.6cqw;">
+      <button class="hot tone-ok" data-panel="da-embed" data-label="Embedded path" style="padding:1.7cqw 1.8cqw;">
+        <span class="ht" style="font-size:2.7cqw;">Embedded</span>
+        <span class="hs" style="margin-top:.5cqw;">stable for a semester · not personal</span>
+        <ul>
+          <li>Course descriptions, learning outcomes</li>
+          <li>Regulations, <b>Studienpläne</b>, policy</li>
+          <li>Research outputs, staff expertise</li>
+          <li>Refreshed nightly, or when a record changes</li>
+        </ul>
+      </button>
+
+      <button class="hot" data-panel="da-call" data-label="Live path" style="border-left:.32cqw solid var(--s-uni);padding:1.7cqw 1.8cqw;">
+        <span class="ht" style="font-size:2.7cqw;">Called live</span>
+        <span class="hs" style="margin-top:.5cqw;">changes hourly · personal · permissioned</span>
+        <ul>
+          <li>Timetables, room bookings, deadlines</li>
+          <li>Enrolment, ECTS balance, grades</li>
+          <li>Student profiles — <b>never embedded</b></li>
+          <li>Inherits the source system's access control</li>
+        </ul>
+      </button>
+    </div>
+
+    <div class="grid3" style="margin-top:1.5cqw;">
+      <button class="hot tone-acc" data-panel="da-pipe" data-label="The pipeline">
+        <span class="ht">The pipeline</span>
+        <span class="hs">spot changes → chunk → embed</span>
+      </button>
+      <button class="hot tone-acc" data-panel="da-hybrid" data-label="Hybrid retrieval">
+        <span class="ht">Hybrid retrieval</span>
+        <span class="hs">BM25 + vector + RRF + rerank</span>
+      </button>
+      <button class="hot tone-risk" data-panel="da-acl" data-label="Permissions">
+        <span class="ht">Permissions on the chunk</span>
+        <span class="hs">pre-filter, never post-filter</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hintline">one rule decides where every source goes</div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-da-embed">
+      <h4>Embedded — slow-moving, semantically rich</h4>
+      <div class="say"><p>Content that stays true for a semester, and that people search <b>by meaning</b> rather than by identifier.</p></div>
+      <h5>Chunking, specifically</h5>
+      <ul>
+        <li>Course data is already structured, so chunk on the <b>record boundary</b>, not on token count</li>
+        <li>Each chunk carries a deterministic header — programme, semester, course code</li>
+        <li>That header is <b>contextual retrieval at zero LLM cost</b>: the context is metadata we already hold</li>
+        <li>Unstructured policy splits on heading boundaries with the parent section prepended</li>
+      </ul>
+      <div class="vs"><p><b>Semantic / LLM-based chunking.</b> Published comparisons put it roughly 1.6 points ahead of fixed-size while taking hours instead of seconds. For structured records it solves a problem we do not have.</p></div>
+      <details>
+        <summary>Show the chunk builder</summary>
+<pre><i># one course = one chunk, with a deterministic header</i>
+<b>chunk_text</b> = f"""
+Kurs: {c.code} — {c.title_de} / {c.title_en}
+Studiengang: {c.programme} | Semester: {c.semester} | ECTS: {c.ects}
+Voraussetzungen: {', '.join(c.prerequisites) or 'keine'}
+Lehrende: {c.instructors}
+
+{c.description_de}
+
+Lernergebnisse:
+{c.learning_outcomes}
+"""
+<b>chunk_id</b>     = f"crs:{c.code}@{c.version}"
+<b>content_hash</b> = sha256(chunk_text)</pre>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-da-call">
+      <h4>Called live — volatile and permission-sensitive</h4>
+      <div class="say"><p>Two reasons, and <b>the second is the one people miss</b>.</p></div>
+      <h5>1 · It would be wrong</h5>
+      <p>A timetable embedded this morning is stale this afternoon. Vector indexes have no concept of &ldquo;this fact expired&rdquo;.</p>
+      <h5>2 · Permissions</h5>
+      <p>A live API call <b>inherits the source system's existing access control</b>. Embedding the same data forces you to rebuild that permission model inside a vector store and keep the two in agreement forever — which is exactly where student-data leaks come from.</p>
+      <div class="verdict risk"><p>The documented failure: California's community colleges spent millions on student-facing assistants that named a president who had left a year earlier, gave wrong financial-aid hours, and gave an international student guidance that could have affected their visa status. <b>Root cause was a manually maintained answer library that went stale</b> — not the model.</p></div>
+      <h5>The ambiguous case</h5>
+      <p>Student profiles sit across the line — personal <i>and</i> volatile. So they are called, not embedded: the safer side of an ambiguous case.</p>
+    </div>
+
+    <div class="panel-src" id="p-da-pipe">
+      <h4>Lakehouse → AI-serving layer</h4>
+      <div class="say"><p>Re-embed only what moved. A nightly run that re-embeds the whole catalogue costs real money; one that re-embeds the diff costs almost nothing.</p></div>
+      <div class="kv">
+        <dt>read</dt><dd>Iceberg tables via the REST catalogue</dd>
+        <dt>detect</dt><dd>change data capture on source tables</dd>
+        <dt>identify</dt><dd>deterministic chunk ID + content hash</dd>
+        <dt>act</dt><dd>unchanged → skip · moved → copy the vector · changed → re-embed · deleted → hard delete</dd>
+      </div>
+      <h5>The one thing that forces a full rebuild</h5>
+      <p>Changing the embedding model. So indexes are <b>versioned and swapped blue-green</b>: build the new one alongside, verify against the golden set, switch the read pointer. Never migrate in place; never mix vectors from two models in one index.</p>
+      <div class="verdict"><p>Every chunk carries <span class="m">as_of</span>, <span class="m">model_version</span> and a pipeline version. A source that misses its freshness SLA raises an alert, and answers drawn from stale chunks <b>say so</b>.</p></div>
+      <details>
+        <summary>Show the re-embed decision</summary>
+<pre><b>for</b> row <b>in</b> cdc_changes(since=last_watermark):
+    cid, text = build_chunk(row)
+    h = sha256(text)
+    prev = index.get_hash(cid)
+
+    <b>if</b> prev == h:                     <i># unchanged</i>
+        continue
+    <b>elif</b> vec := index.find_by_hash(h):
+        index.upsert(cid, vec)         <i># moved: copy, don't re-embed</i>
+    <b>else</b>:
+        index.upsert(cid, embed(text))  <i># new or changed</i>
+
+<b>for</b> cid <b>in</b> deleted_ids(since=last_watermark):
+    index.hard_delete(cid)             <i># not a tombstone</i></pre>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-da-hybrid">
+      <h4>Hybrid, because students ask lexical questions</h4>
+      <div class="say"><p>Dense vectors fail on exactly what a student types with most confidence: a course code, a module number, a German compound.</p></div>
+      <table>
+        <thead><tr><th>Query</th><th>Dense</th><th>Sparse</th><th>Hybrid</th></tr></thead>
+        <tbody>
+          <tr><td><span class="m">INF.02.014</span> <i>exact code</i></td><td>✗ blurs to neighbours</td><td>✓</td><td>✓</td></tr>
+          <tr><td>&ldquo;courses about machine ethics&rdquo;</td><td>✓</td><td>✗ no lexical overlap</td><td>✓</td></tr>
+          <tr><td><span class="m">Lehrveranstaltungsanmeldung</span></td><td>~ partial</td><td>~ needs decompounding</td><td>✓ with tokenizer</td></tr>
+          <tr><td>&ldquo;Prof. Lindstaedt's group&rdquo;</td><td>~</td><td>✓</td><td>✓</td></tr>
+        </tbody>
+      </table>
+      <h5>Why rank fusion, not score fusion</h5>
+      <p>BM25 scores are unbounded; cosine similarity is bounded. Fusing raw scores needs normalisation that shifts with every query. <b>Reciprocal rank fusion sidesteps the scale problem entirely</b> and needs no tuning — k=60 is the standard default.</p>
+      <h5>Why 50 → 8 and not 200 → 20</h5>
+      <p>Rerank cost is linear in candidates and the context budget is finite. Beyond ~8 passages the model's attention spreads thin and grounding gets <i>worse</i>, not better.</p>
+      <div class="verdict"><p>Measured expectation: published hybrid-vs-single comparisons show roughly a <b>7% NDCG lift</b> — modest on average. The value isn't the average; it is <b>eliminating a whole category of total failure</b> on lexical queries.</p></div>
+      <details>
+        <summary>Show the query</summary>
+<pre><b>WITH</b> allowed <b>AS</b> (
+  <b>SELECT</b> chunk_id <b>FROM</b> chunks
+  <b>WHERE</b> visibility = 'public'
+     <b>OR</b> (scope = 'user'    <b>AND</b> subject_id = $subject)
+     <b>OR</b> (scope = 'program' <b>AND</b> entity_ids &amp;&amp; $my_programmes)
+     <b>OR</b>  scope <b>IN</b> ('university','global')
+),
+dense <b>AS</b> (
+  <b>SELECT</b> chunk_id, <b>row_number</b>() <b>OVER</b> (<b>ORDER BY</b> embedding &lt;=&gt; $qvec) <b>AS</b> r
+  <b>FROM</b> chunks <b>WHERE</b> chunk_id <b>IN</b> (<b>SELECT</b> chunk_id <b>FROM</b> allowed)
+  <b>ORDER BY</b> embedding &lt;=&gt; $qvec <b>LIMIT</b> 50
+),
+sparse <b>AS</b> (
+  <b>SELECT</b> chunk_id, <b>row_number</b>() <b>OVER</b> (<b>ORDER BY</b> score <b>DESC</b>) <b>AS</b> r
+  <b>FROM</b> chunks <b>WHERE</b> content @@@ $qtext
+    <b>AND</b> chunk_id <b>IN</b> (<b>SELECT</b> chunk_id <b>FROM</b> allowed)
+  <b>ORDER BY</b> score <b>DESC</b> <b>LIMIT</b> 50
+)
+<b>SELECT</b> c.chunk_id, c.content, c.as_of,
+       <b>COALESCE</b>(1.0/(60 + d.r), 0) + <b>COALESCE</b>(1.0/(60 + s.r), 0) <b>AS</b> rrf
+<b>FROM</b> chunks c
+<b>LEFT JOIN</b> dense d  <b>USING</b> (chunk_id)
+<b>LEFT JOIN</b> sparse s <b>USING</b> (chunk_id)
+<b>WHERE</b> d.r <b>IS NOT NULL</b> <b>OR</b> s.r <b>IS NOT NULL</b>
+<b>ORDER BY</b> rrf <b>DESC</b> <b>LIMIT</b> 50;</pre>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-da-acl">
+      <h4>Permissions live on the chunk</h4>
+      <div class="say"><p>Access control is a <b>WHERE clause in the retrieval query</b> — not a filter applied to results afterwards.</p></div>
+      <div class="verdict risk"><p>Post-filtering is the bug that leaks. If restricted rows are retrieved and then removed, they have <b>already entered the process, the logs, and sometimes the prompt</b>. Pre-filtering means they were never selected.</p></div>
+      <h5>Why this needs one database</h5>
+      <p>The permission predicate joins against enrolment and programme membership. In a separate vector store those joins become application-side fan-out — slower, and far easier to get subtly wrong. <b>This is the single strongest argument for staying in Postgres at this scale.</b></p>
+
+      <h5>The objection this invites</h5>
+      <p>Pre-filtering is the known weak spot of approximate vector indexes. With HNSW the filter is applied <b>after</b> the index scan, so a restrictive predicate can return fewer than <span class="m">k</span> rows, or push the planner into a sequential scan. It is a fair challenge and it has three answers, in order.</p>
+      <ul>
+        <li><b>The filter is not selective in the common case.</b> Course descriptions, regulations and research outputs are <span class="m">university</span> and <span class="m">global</span> scope — visible to every student. The predicate only becomes selective for <span class="m">scope = 'user'</span>, which is a small slice with its own partial index.</li>
+        <li><b>pgvector 0.8 added iterative index scans</b> for exactly this. <span class="m">hnsw.iterative_scan = relaxed_order</span> keeps scanning further into the graph until enough rows survive the filter, bounded by <span class="m">hnsw.max_scan_tuples</span> (20,000 by default). Recall is recovered without abandoning the index.</li>
+        <li><b>Raising <span class="m">ef_search</span></b> buys the same thing more bluntly, at a latency cost — the lever to reach for while measuring, not the one to ship.</li>
+      </ul>
+      <div class="verdict warn"><p>What this is <i>not</i>: a RAM problem. An index that fits in memory still loses recall to a post-applied filter. Conflating the two is the wrong defence — <b>the fix is iterative scan and index shape, not machine size.</b></p></div>
+      <div class="verdict"><p>Reversal condition, stated plainly: if filtered recall still degrades measurably after iterative scans and a partial index, <b>Qdrant's filterable HNSW is genuinely better at this</b> and that is the documented point to move.</p></div>
+      <details>
+        <summary>Show the schema</summary>
+<pre><b>CREATE EXTENSION</b> vector;      <i>-- pgvector</i>
+<b>CREATE EXTENSION</b> pg_search;   <i>-- real BM25</i>
+
+<b>CREATE TABLE</b> chunks (
+  chunk_id      text        <b>PRIMARY KEY</b>,   <i>-- crs:INF.02.014@v7</i>
+  source        text        <b>NOT NULL</b>,
+  content       text        <b>NOT NULL</b>,
+  content_hash  bytea       <b>NOT NULL</b>,
+  embedding     halfvec(1024),
+  lang          text        <b>NOT NULL</b>,      <i>-- de | en</i>
+  scope         text        <b>NOT NULL</b>,      <i>-- user|project|program|university|global</i>
+  subject_id    text,                       <i>-- only when scope='user'</i>
+  visibility    text        <b>NOT NULL</b>,      <i>-- public|internal|restricted</i>
+  entity_ids    text[],                     <i>-- pivot to SQL: course, person, programme</i>
+  as_of         timestamptz <b>NOT NULL</b>,
+  model_version text        <b>NOT NULL</b>
+);
+
+<b>CREATE INDEX</b> ON chunks <b>USING</b> hnsw (embedding halfvec_cosine_ops)
+  <b>WITH</b> (m = 16, ef_construction = 64);
+<b>CREATE INDEX</b> ON chunks <b>USING</b> bm25 (chunk_id, content)
+  <b>WITH</b> (key_field = 'chunk_id',
+        text_fields = '{"content":{"tokenizer":{"type":"german_compound"}}}');
+<b>CREATE INDEX</b> ON chunks (scope, subject_id) <b>WHERE</b> scope = 'user';
+<b>CREATE INDEX</b> ON chunks <b>USING</b> gin (entity_ids);</pre>
+        <p>That <span class="m">german_compound</span> tokenizer is <b>the one line I would verify before committing</b>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Security &amp; compliance" data-key="security"
+  data-budget="2.5 min">
+  <div class="tag">Security, privacy &amp; compliance</div>
+  <h2>Safe to trust</h2>
+  <p class="sub">Privacy &middot; accuracy &middot; the law</p>
+
+  <div class="body">
+    <div class="grid2" style="gap:1.3cqw;">
+      <button class="hot tone-ok" data-panel="tr-construct" data-label="By construction">
+        <span class="ht">Never guess a number</span>
+        <span class="hs">ask a system that knows</span>
+        <ul>
+          <li>ECTS, prerequisites, clashes, eligibility → <b>tool calls</b></li>
+          <li>A failed tool call produces a <b>refusal, never a guess</b></li>
+        </ul>
+      </button>
+
+      <button class="hot tone-acc" data-panel="tr-gate" data-label="The gate">
+        <span class="ht">Check every answer</span>
+        <span class="hs">before it reaches a student</span>
+        <ul>
+          <li><b>Every call:</b> entailment check, sub-second</li>
+          <li><b>2% sample:</b> LLM judge, claim decomposition</li>
+          <li><b>Pre-merge:</b> golden set blocks the PR</li>
+        </ul>
+      </button>
+
+      <button class="hot tone-risk" data-panel="tr-pii" data-label="Access control">
+        <span class="ht">Access control</span>
+        <span class="hs">not PII detection</span>
+        <ul>
+          <li>Best open PII detectors ≈ <b>0.54 F1</b>, German untested</li>
+          <li>A denied scope is <b>never retrieved</b> — nothing to scrub</li>
+        </ul>
+      </button>
+
+      <button class="hot tone-warn" data-panel="tr-law" data-label="GDPR &amp; AI Act">
+        <span class="ht">GDPR &amp; the AI Act</span>
+        <span class="hs">designed in, not reviewed in</span>
+        <ul>
+          <li><b>Never fine-tune on student data</b> — keeps erasure tractable</li>
+          <li>Two of the five features plausibly <b>high-risk</b></li>
+        </ul>
+      </button>
+    </div>
+  </div>
+
+  <div class="hintline">an honest &ldquo;I don’t know&rdquo; is a feature</div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-tr-construct">
+      <h4>Remove the error class, don't catch it</h4>
+      <div class="say"><p>The strongest thing I can do about hallucination isn't detection. It's making sure <b>the model never computes the number in the first place</b>.</p></div>
+      <h5>Deterministic, always</h5>
+      <ul>
+        <li>Remaining <b>ECTS</b> and credit arithmetic</li>
+        <li><b>Prerequisite</b> satisfaction</li>
+        <li><b>Timetable</b> conflicts</li>
+        <li><b>Graduation</b> eligibility</li>
+      </ul>
+      <p>The model asks a system that knows, then explains the result. It can recommend a bad-but-legal path; it <b>cannot recommend an impossible one</b>.</p>
+      <div class="verdict risk"><p>One rule governs every failure mode: <b>a failed tool call produces a refusal, never a guess.</b> Degrading into confident invention is the failure that harms a student.</p></div>
+      <details>
+        <summary>Show the failure-mode table</summary>
+        <table>
+          <thead><tr><th>Fails</th><th>Behaviour</th></tr></thead>
+          <tbody>
+            <tr><td><b>LLM provider</b></td><td>Gateway fails over; if both are down, return retrieved sources with no synthesis — <i>still useful</i></td></tr>
+            <tr><td><b>Reranker</b></td><td>Skip it, serve fused results, log the degradation. Quality drops; service does not</td></tr>
+            <tr><td><b>Tool server</b></td><td>Capability refuses rather than guessing</td></tr>
+            <tr><td><b>Postgres</b></td><td>Hard dependency. Read replica serves retrieval; writes pause</td></tr>
+            <tr><td><b>Redis</b></td><td>Cache miss everywhere, queue drains to a Postgres table. Slower, correct</td></tr>
+            <tr><td><b>Ingest worker</b></td><td>Index goes stale. Freshness monitor alerts; answers carry <span class="m">as_of</span></td></tr>
+            <tr><td><b>Eval worker</b></td><td>Scoring backlog. Does not block answers — off the request path by design</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-tr-gate">
+      <h4>Three loops, three timescales</h4>
+      <div class="say"><p>A check you can only afford sometimes means <b>most answers go unchecked</b>. So: cheap gate on all traffic, expensive judge on a sample.</p></div>
+      <table>
+        <thead><tr><th>Approach</th><th>Latency</th><th>Runs on</th></tr></thead>
+        <tbody>
+          <tr><td>Purpose-built entailment model</td><td><b>~0.6 s</b> GPU</td><td><b>every response</b></td></tr>
+          <tr><td>LLM-as-judge, claim decomposition</td><td>~35 s</td><td>~2% sample</td></tr>
+          <tr><td>Golden-set regression in CI</td><td>minutes</td><td>every pull request</td></tr>
+        </tbody>
+      </table>
+      <h5>What blocks, and what alerts</h5>
+      <ul>
+        <li><b>Groundedness</b> &lt; 0.7 → refuse, do not publish</li>
+        <li><b>Citation validity</b> — cited chunk must contain the claim, else strip and re-gate</li>
+        <li><b>Context recall</b> −3pp on the golden set → block the merge</li>
+        <li><b>Refusal rate</b> &gt; 15% in production → retrieval is failing, investigate</li>
+      </ul>
+      <div class="verdict"><p>Separating <b>retrieval failure from generation failure</b> is the most useful diagnostic split there is. Low recall means fix the index; high recall with low groundedness means fix the prompt or the model.</p></div>
+      <details>
+        <summary>Show the gate, and the honest limits of judges</summary>
+<pre><i># gate, simplified</i>
+claims = decompose(answer)               <i># cheap, rule-based</i>
+scores = [entail(c, retrieved) <b>for</b> c <b>in</b> claims]
+
+<b>if</b> min(scores) &lt; 0.7:
+    <b>return</b> refusal(reason="insufficient_evidence",
+                   guidance="Ask your programme advisor")
+<b>return</b> answer_with_citations(answer, retrieved)</pre>
+        <p>Judges agree with humans above 80% on well-structured tasks — and still exceed 50% error on adversarial bias benchmarks. They are a useful instrument with <b>known, measured distortions</b>.</p>
+        <table>
+          <thead><tr><th>Bias</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td><b>Position</b> — favours the first option</td><td>swap order, average both runs</td></tr>
+            <tr><td><b>Verbosity</b> — favours longer answers</td><td>rubric anchoring with length-matched examples</td></tr>
+            <tr><td><b>Self-preference</b> — favours its own family</td><td>never let the generating model judge itself</td></tr>
+            <tr><td><b>Drift</b> — provider silently updates</td><td>pin versions; re-baseline on the golden set</td></tr>
+          </tbody>
+        </table>
+        <p>Practical rule: if judge-versus-human divergence exceeds <b>20–25%</b> on a domain spot-check, recalibrate the rubric before trusting any number it produces.</p>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-tr-pii">
+      <h4>Why scrubbing cannot be the boundary</h4>
+      <div class="say"><p>A detector that misses a third of what it looks for is useful defence in depth and <b>indefensible as a control</b>.</p></div>
+      <div class="verdict risk"><p>A 2026 benchmark of open PII detectors puts the best average <b>F1 at roughly 0.54</b> — and German was not among the languages tested.</p></div>
+      <h5>What is used instead</h5>
+      <ul>
+        <li>The permission decision happens at the <b>context resolver</b></li>
+        <li>A scope this person may not reach is <b>never retrieved</b> — so there is nothing to scrub</li>
+        <li>Scrubbing still runs <b>before logging and before any external call</b> — as a second line, not the first</li>
+      </ul>
+      <div class="vs"><p><b>A scrubber at the gateway, calling the privacy problem solved.</b> That design relies on a component that does not work well enough to rely on.</p></div>
+      <div class="verdict"><p>What I would do in a deployment: build a <b>German evaluation set early</b>. Public benchmarks do not transfer, and the honest number for this corpus is currently unknown.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-tr-law">
+      <h4>GDPR and the AI Act, asked early</h4>
+      <div class="say"><p><b>Public authorities cannot rely on legitimate interest</b> for processing carried out in performance of their tasks. So it's public task for the record, and opt-in consent for the AI layer.</p></div>
+      <div class="kv">
+        <dt>substrate</dt><dd>Art. 6(1)(e) public task — the academic record itself</dd>
+        <dt>AI layer</dt><dd>opt-in consent — genuinely optional, freely withdrawable</dd>
+      </div>
+      <p>Consent under authority imbalance is fragile — but it works precisely where the service is voluntary and refusing costs the student nothing. Keeping the AI layer <b>separable</b> is what makes the consent real rather than theatre.</p>
+      <h5>Erasure — the architectural decision</h5>
+      <div class="verdict ok"><p>Keep all personal data in the <b>retrievable layer, never in model weights</b>. Do not fine-tune on student data. Deleting a row and its vector is ordinary database work with a testable SLA; deleting a person from a fine-tuned model is an unsettled legal question. <b>This converts an open legal risk into a solved engineering task.</b></p></div>
+      <p>Treat embeddings of student text as personal data — inversion research keeps demonstrating that source text can be reconstructed from dense vectors.</p>
+      <h5>AI Act</h5>
+      <ul>
+        <li>Annex III(3) covers systems that <b>evaluate learning outcomes</b>, including where those outcomes steer the learning process</li>
+        <li>Learning paths and competency tracking <b>plausibly land inside that</b></li>
+        <li>The Digital Omnibus moved those obligations to <b>2 December 2027</b> — that is the window to decide in, not relief</li>
+        <li><b>No profiling of natural persons</b> — profiling is always high-risk regardless of exemptions</li>
+        <li>Student-facing before staff-facing: a flag to staff becomes a decision under <b>Article 22</b></li>
+      </ul>
+      <h5>What high-risk actually obliges</h5>
+      <p>Annex III classification is not the obligation — it is the trigger for <b>Chapter III, Section 2</b>. Seven articles, and each one is an engineering requirement rather than a paperwork exercise.</p>
+      <table>
+        <thead><tr><th>Art.</th><th>Requires</th><th>Built by</th></tr></thead>
+        <tbody>
+          <tr><td><b>9</b></td><td>Risk management system across the lifecycle</td><td>the decision register, with reversal conditions</td></tr>
+          <tr><td><b>10</b></td><td>Data governance — relevance, representativeness, bias examination</td><td>the data contract and cohort outcome monitoring</td></tr>
+          <tr><td><b>11</b></td><td>Technical documentation before placing on the market</td><td>this architecture, versioned in git</td></tr>
+          <tr><td><b>12</b></td><td>Automatic record-keeping over the system's lifetime</td><td><span class="m">trace_id</span> on every response — Phase 0</td></tr>
+          <tr><td><b>13</b></td><td>Transparency and instructions for use</td><td>citations, <span class="m">as_of</span>, the refusal shape</td></tr>
+          <tr><td><b>14</b></td><td>Human oversight, effective and real</td><td>advisory-only output, always overridable</td></tr>
+          <tr><td><b>15</b></td><td>Accuracy, robustness, cybersecurity</td><td>golden set in CI, groundedness gate, ACL</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict"><p><b>Article 19</b> sets the retention floor: automatically generated logs kept for a period appropriate to the purpose and <b>at least six months</b>, subject to data-protection law. Instrumenting in Phase 0 is what makes that a configuration value instead of a retrofit — and it is why the audit trail is built before any student sees a feature.</p></div>
+      <h5>The distinction that decides how heavy this gets</h5>
+      <div class="verdict risk"><p>Building this in-house makes the university the <b>provider</b>, not merely the deployer. Provider obligations are the heavy set — Chapter III Section 2 in full, plus conformity assessment. Buying a system and operating it would land under <b>Article 26</b> instead, which is far lighter. <b>Which of the two the institution intends to be is a decision to take deliberately, in week one — not to discover in year two.</b></p></div>
+      <h5>And if learning paths are wanted on day one</h5>
+      <p>The architecture already survives that. Deterministic tools construct the path — eligibility, prerequisites, credit arithmetic, clashes — and the model only explains a path that has already been validated. Advisory, overridable, no profiling of natural persons.</p>
+      <p>What day-one shipping cannot skip is <b>Art. 12 logging and Art. 14 oversight</b>. Those are precisely what Phase 0 builds, which is why the sequencing survives the request rather than blocking it.</p>
+      <div class="verdict warn"><p>A <b>DPIA is mandatory</b> — Austria's blacklist triggers on AI, on profiling, and on scoring with adverse effect; any one alone is enough. Budget it into the roadmap. And this is my reading of the statutory structure, not a cited regulator position — <b>it needs counsel</b>, which is itself the point.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Roadmap &amp; maintainability" data-key="roadmap"
+  data-budget="2 min">
+  <div class="tag">Roadmap &amp; maintainability</div>
+  <h2>Roadmap</h2>
+  <p class="sub">Ship what we can check first</p>
+
+  <div class="body">
+    <div class="grid4">
+      <button class="hot" data-panel="rm-0" data-label="Phase 0">
+        <span class="ht">Weeks 1–4</span>
+        <span class="hs">foundations · no features</span>
+        <ul><li>Tracing, cost accounting, audit trail</li><li><b>DPIA + AI Act assessment started</b></li></ul>
+      </button>
+      <button class="hot tone-ok" data-panel="rm-1" data-label="Phase 1">
+        <span class="ht">Month 3</span>
+        <span class="hs">find &amp; plan</span>
+        <ul><li>Correctness visible in one click</li><li>Earns: the <b>golden set in CI</b></li></ul>
+      </button>
+      <button class="hot tone-warn" data-panel="rm-2" data-label="Phase 2">
+        <span class="ht">Month 6</span>
+        <span class="hs">study questions</span>
+        <ul><li>First truly generative feature</li><li>Earns: the <b>groundedness gate, live</b></li></ul>
+      </button>
+      <button class="hot tone-risk" data-panel="rm-3" data-label="Phase 3">
+        <span class="ht">Month 12</span>
+        <span class="hs">paths &amp; competencies</span>
+        <ul><li>Highest value, highest exposure</li><li>Earns: <b>cohort outcome monitoring</b></li></ul>
+      </button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:.8cqw;margin:1.5cqw 0 .5cqw;">
+      <div style="flex:1;height:.36cqw;border-radius:99px;background:linear-gradient(90deg,var(--line2),var(--ok) 30%,var(--warn) 65%,var(--risk));"></div>
+    </div>
+    <div class="mono" style="font-size:1.08cqw;color:var(--ink3);margin-bottom:1.4cqw;">
+      tracing → golden set + CI → online scoring → drift &amp; fairness review
+    </div>
+
+    <div class="grid2">
+      <button class="hot tone-acc" data-panel="rm-mod" data-label="Maintainability">
+        <span class="ht">Four seams</span>
+        <span class="hs">reversible in year three</span>
+      </button>
+      <button class="hot tone-acc" data-panel="rm-reuse" data-label="Reuse">
+        <span class="ht">One layer, three audiences</span>
+        <span class="hs">students · staff · public</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hintline">the order is the argument</div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-rm-0">
+      <h4>Phase 0 · Weeks 1–4 — foundations, no features</h4>
+      <div class="say"><p>Deliberately unglamorous. <b>Instrumenting first is the difference between debugging with evidence and debugging with anecdotes</b> — and retrofitting it later never happens.</p></div>
+      <div class="kv">
+        <dt>build</dt><dd>gateway, capability API skeleton, one capability end to end</dd>
+        <dt>agree</dt><dd>the data contract with the platform team</dd>
+        <dt>instrument</dt><dd>tracing, cost accounting, audit trail — before any student sees it</dd>
+      </div>
+      <div class="verdict warn"><p>Also started now, not later: the <b>DPIA</b> and the <b>AI Act classification assessment</b>. Both are long-lead items that block launch if left to the end.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-rm-1">
+      <h4>Phase 1 · By month 3 — find &amp; plan</h4>
+      <div class="say"><p>These two first because <b>correctness is visible to the student in one click</b> — the citation or the calendar entry is right there.</p></div>
+      <ul>
+        <li><b>Low harm</b> if imperfect — a mediocre search result costs a student seconds</li>
+        <li>They build the <b>retrieval layer and the tool layer</b> everything else depends on</li>
+        <li>Neither needs a generative step in the core path</li>
+      </ul>
+      <h5>Harness earned in this phase</h5>
+      <p>A golden set of <b>30–50 real queries</b>, versioned in git, running as a regression gate on every pull request. Small on purpose: fifty cases a human verified beat a thousand a model generated, and a set nobody maintains decays into noise.</p>
+      <p>Composition matters more than size — include questions where the right answer is <b>&ldquo;I don't know&rdquo;</b>, both German and English, lexical and conceptual queries, and permission cases a student must <b>not</b> get an answer to.</p>
+    </div>
+
+    <div class="panel-src" id="p-rm-2">
+      <h4>Phase 2 · By month 6 — study questions</h4>
+      <div class="say"><p>It does not ship until the groundedness gate is <b>live in production, not merely written</b>. That ordering is the whole point of the roadmap.</p></div>
+      <p>RAG over regulations, policy and course content — the &ldquo;how do I, when is, what happens if&rdquo; traffic that otherwise lands on an advisor.</p>
+      <div class="verdict warn"><p>The failure mode here is <b>plausible wrongness about a deadline</b>. So the gate is not optional, and refusal is an accepted outcome.</p></div>
+      <div class="kv">
+        <dt>every call</dt><dd>cheap entailment check before the answer returns</dd>
+        <dt>sampled</dt><dd>judge-based scoring on a slice of live traffic</dd>
+        <dt>review</dt><dd>a human queue for anything that scored badly</dd>
+      </div>
+    </div>
+
+    <div class="panel-src" id="p-rm-3">
+      <h4>Phase 3 · By month 12 — paths &amp; competencies</h4>
+      <div class="say"><p>Shipping these in month one would make the best demo and the worst decision. <b>They are where a wrong answer changes what a student does with a year of their life.</b></p></div>
+      <h5>Preconditions — all of them</h5>
+      <ul>
+        <li>Groundedness harness running on live traffic</li>
+        <li>Tool layer covering prerequisites, ECTS and timetables</li>
+        <li>Competency model mapped to <span class="m">ESCO</span> / the European Learning Model</li>
+        <li>DPIA complete and AI Act assessment documented</li>
+      </ul>
+      <h5>Harness earned in this phase</h5>
+      <p><b>Outcome monitoring across cohorts</b> — because the failure that matters here is not a hallucination, it is systematically worse advice to one group than another.</p>
+      <div class="verdict"><p>The split that keeps it safe: <b>code decides</b> eligibility, prerequisites, credit maths and clashes. <b>The model decides</b> ordering, framing and explanation. Advisory only, always overridable, never auto-enrols anyone.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-rm-mod">
+      <h4>Four seams</h4>
+      <div class="say"><p>Modularity is not folder structure. It is <b>which decisions can be reversed without touching anything else</b>.</p></div>
+      <div class="kv">
+        <dt>model</dt><dd>one gateway — swapping provider is configuration</dd>
+        <dt>platform</dt><dd>read through a catalogue and a contract, not a schema</dd>
+        <dt>tools</dt><dd>typed MCP servers — register one, don't modify the agent</dd>
+        <dt>retrieval</dt><dd>versioned indexes — a new model means blue-green, not migration</dd>
+      </div>
+      <h5>The test I would actually apply</h5>
+      <div class="verdict ok"><p>Can a new person <b>change the embedding model, or add one tool, in their first week</b> — without reading the whole codebase and without a release freeze? If not, the seams are in the wrong place.</p></div>
+      <details>
+        <summary>Show the decision register</summary>
+        <table>
+          <thead><tr><th>Chose</th><th>Over</th><th>Reverse it when</th></tr></thead>
+          <tbody>
+            <tr><td><b>Consume the platform</b></td><td>build a lakehouse</td><td>never for this role — a self-managed lakehouse is a 3–6 engineer project</td></tr>
+            <tr><td><b>Exoscale Vienna, managed</b></td><td>self-managed k3s</td><td>cost pressure exceeds the value of one engineer's time</td></tr>
+            <tr><td><b>Hosted EU inference</b></td><td>self-hosted generation</td><td>counsel rules CLOUD Act exposure unacceptable</td></tr>
+            <tr><td><b>Postgres + pgvector</b></td><td>Qdrant, Milvus</td><td>HNSW exceeds RAM, or filtered recall degrades</td></tr>
+            <tr><td><b>BM25 extension</b></td><td>Postgres <span class="m">ts_rank</span></td><td>never — no IDF, no saturation</td></tr>
+            <tr><td><b>Garage / SeaweedFS</b></td><td><b>MinIO</b></td><td><i>already reversed</i> — MinIO's community edition entered maintenance, repo archived 2026</td></tr>
+            <tr><td><b>PydanticAI</b></td><td>LangChain, Haystack</td><td>the team already knows one — then theirs wins over mine</td></tr>
+            <tr><td><b>Entailment gate inline</b></td><td>LLM-as-judge inline</td><td>never inline — judges belong on a sample</td></tr>
+            <tr><td><b>Relational graph via SQL</b></td><td>GraphRAG</td><td>a corpus arrives with no schema to exploit</td></tr>
+          </tbody>
+        </table>
+        <p>A choice without a reversal condition is a preference. <b>&ldquo;We chose Postgres&rdquo; is an opinion; &ldquo;we chose Postgres until the graph exceeds RAM&rdquo; is an architecture.</b></p>
+      </details>
+    </div>
+
+    <div class="panel-src" id="p-rm-reuse">
+      <h4>Same layer, three audiences</h4>
+      <div class="say"><p>Yes — and they differ in <b>which scopes they may reach</b>, not in what the layer does. That reuse is free <i>because</i> scope is a permission boundary.</p></div>
+      <table>
+        <thead><tr><th>Tier</th><th>Scopes</th><th>What changes</th></tr></thead>
+        <tbody>
+          <tr><td><b>Public website</b></td><td>global + public university</td><td>personalization off; no consent needed — no personal data in scope</td></tr>
+          <tr><td><b>Students</b> <i>(this proposal)</i></td><td>+ user, project, program</td><td>public task + opt-in consent; never another student's scope</td></tr>
+          <tr><td><b>Staff workplace</b></td><td>+ cohort, purpose-bound</td><td><b>governance work, not engineering work</b></td></tr>
+        </tbody>
+      </table>
+      <h5>What the staff tier genuinely needs</h5>
+      <div class="verdict risk"><p>The moment the system flags a student to staff, <b>a score becomes a decision</b>. Under the SCHUFA reasoning that falls within Article 22 even when a human nominally approves it.</p></div>
+      <ul>
+        <li>A <b>purpose register</b> — every cohort-scope access records why</li>
+        <li>Inputs shown, so the human exercises real judgment rather than rubber-stamping</li>
+        <li>Override always available, and logged when used</li>
+        <li>An AI Act assessment covering the staff-facing path specifically</li>
+      </ul>
+      <p><b>Reused unchanged:</b> retrieval, gateway, tools, evaluation harness, audit trail, capability API. Roughly everything expensive.</p>
+      <h5>Future features worth building next</h5>
+      <ul>
+        <li><b>Multimodal ingestion</b> — OCR for scanned regulations and old exam papers, speech-to-text for lecture recordings. Both become ordinary chunks in the same index, cited the same way, and both run <b>off the request path</b> on the same GPU</li>
+        <li><b>Accessibility</b> — the same capability surfaced as voice, which costs nothing extra once the contract exists</li>
+      </ul>
+      <div class="verdict warn"><p>Licence check, done: Granite Speech 4.1 and PaddleOCR are Apache-2.0; Parakeet TDT is CC-BY-4.0. <b>Avoid Surya — GPL-3.0.</b> And German accuracy for both OCR and speech is <b>unverified</b> in published benchmarks — I would measure on the university's own material before committing.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Conclusion" data-key="conclusion"
+  data-budget="1.5 min">
+  <div class="tag">Reuse &amp; open questions</div>
+  <h2>In closing</h2>
+  <p class="sub">One idea &middot; one answer &middot; one question</p>
+
+  <div class="body">
+    <button class="hot tone-acc" data-panel="cl-thesis" data-label="The one idea" style="width:100%;">
+      <span class="ht">Permission and personalisation are one mechanism</span>
+      <span class="hs">the one idea everything else follows from</span>
+    </button>
+
+    <div class="grid2" style="margin-top:1.3cqw;">
+      <button class="hot tone-ok" data-panel="cl-bonus" data-label="Reuse">
+        <span class="ht">Can it serve staff and the public?</span>
+        <span class="hs">yes &mdash; change the scopes, not the build</span>
+        <ul>
+          <li>Public site: no personal data, <b>no consent needed</b></li>
+          <li>Staff: one more scope, purpose-bound</li>
+          <li>New work is <b>governance, not engineering</b></li>
+        </ul>
+      </button>
+
+      <button class="hot tone-warn" data-panel="cl-q2" data-label="Open question">
+        <span class="ht">What does the data platform expose?</span>
+        <span class="hs">the one thing I&rsquo;d want answered in week one</span>
+        <ul>
+          <li>A catalogue, or only a query endpoint?</li>
+          <li>Change capture, or a nightly rebuild?</li>
+          <li><b>The one dependency I do not control</b></li>
+        </ul>
+      </button>
+    </div>
+
+    <div style="margin-top:1.3cqw;">
+      <button class="hot" data-panel="cl-evidence" data-label="Experience" style="width:100%;">
+        <span class="ht">I have built this shape before</span>
+        <span class="hs">retrieval + recommender, on Kubernetes &mdash; and what it does not prove</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel-src" id="p-cl-bonus">
+      <h4>The same layer, three audiences</h4>
+      <div class="say"><p>Yes &mdash; and they differ in <b>which scopes they may reach</b>, not in what the layer does. That reuse is free precisely because a scope is already a permission boundary.</p></div>
+      <table>
+        <thead><tr><th>Tier</th><th>Scopes</th><th>What changes</th></tr></thead>
+        <tbody>
+          <tr><td><b>Public website</b></td><td>global + the public slice of university</td><td>personalisation off; no consent needed, because no personal data is in scope</td></tr>
+          <tr><td><b>Students</b> <i>(this proposal)</i></td><td>+ user, project, program</td><td>public task + opt-in consent; never another student's scope</td></tr>
+          <tr><td><b>Staff workplace</b></td><td>+ cohort, purpose-bound</td><td><b>governance work, not engineering work</b></td></tr>
+        </tbody>
+      </table>
+      <h5>Reused unchanged</h5>
+      <p>Retrieval, the gateway, the tools, the evaluation harness, the audit trail and the capability API. <b>Roughly everything expensive.</b></p>
+      <h5>What genuinely has to be added &mdash; and it is not code</h5>
+      <div class="verdict risk"><p>The moment the system flags a student <i>to staff</i>, a score becomes a decision. Under the SCHUFA reasoning that falls within <b>GDPR Article 22</b> even when a human nominally approves it.</p></div>
+      <ul>
+        <li>A <b>purpose register</b> &mdash; every cohort-scope access records why</li>
+        <li>Inputs shown, so the human exercises real judgment rather than rubber-stamping</li>
+        <li>Override always available, and logged when used</li>
+        <li>An AI Act assessment covering the staff-facing path specifically</li>
+      </ul>
+      <div class="verdict ok"><p>So the honest answer to the bonus question is: <b>no new features, no adjusted system &mdash; a different scope set and a governance layer.</b> If the architecture had not made scope the permission boundary, this answer would have been a rebuild.</p></div>
+    </div>
+
+    <div class="panel-src" id="p-cl-q2">
+      <h4>2 · What does the data platform actually expose?</h4>
+      <div class="say"><p>Catalogue access, refresh cadence, and whether change data capture exists. <b>That single answer decides whether incremental embedding is a clean pipeline or a nightly full rebuild.</b></p></div>
+      <ul>
+        <li>Is there an <b>Iceberg REST catalogue</b>, or only a query endpoint?</li>
+        <li>Is there <b>CDC</b>, or do I diff on content hashes myself?</li>
+        <li>Does the platform carry <b>row-level access metadata</b>, or do I derive the ACL?</li>
+        <li>What is the agreed <b>refresh cadence</b> per source, and who owns it?</li>
+      </ul>
+      <div class="verdict"><p>This is the one dependency I do not control. So the first deliverable in Phase 0 is not code — it is <b>a written data contract with the platform team</b>.</p></div>
+      <details>
+        <summary>Two other things I would check in week one</summary>
+        <h5>Is Academic AI already available to the university?</h5>
+        <p>The University of Vienna runs student-facing generative AI on an Austrian cooperative with around 32 participating universities, at roughly &euro;20 per user per month. <b>If generic chat is already purchasable, the entire engineering budget belongs to the context layer</b> &mdash; and this proposal gets cheaper and faster. That would strengthen the design, not weaken it: the model was never the moat.</p>
+        <h5>Does the BM25 extension decompound German?</h5>
+        <p>If <span class="m">Anmeldung</span> does not match <span class="m">Lehrveranstaltungsanmeldung</span>, sparse retrieval quietly underperforms across half the corpus. Quietly is the dangerous word &mdash; nothing errors, recall just drops.</p>
+        <p>Closing it takes an afternoon: index 500 real course and regulation records, run 30 compound queries a student would actually type, compare recall with and without the tokenizer.</p>
+        <p>The mature fallback is Lucene's <b>hyphenation-based compound filter</b> &mdash; hyphenate with an FOP pattern file, keep only fragments a German dictionary recognises, then stem both the whole word and the parts. The public <span class="m">german-decompounder</span> data set ships exactly that, and it is what Elasticsearch and Solr use. A general German NLP tokenizer does <b>not</b> solve this: spaCy and SoMaJo segment and lemmatise, neither splits compounds.</p>
+      </details>
+
+    </div>
+
+    <div class="panel-src" id="p-cl-evidence">
+      <h4>Production multimodal retrieval &amp; recommender</h4>
+      <div class="say"><p>I've shipped this shape before — <b>and I'll be honest about what it does and doesn't prove</b>.</p></div>
+      <p>A FastAPI service with eight interchangeable retrieval strategies across two modalities — TF-IDF, Word2Vec, BERT embeddings, MFCC audio features, and early and late fusion.</p>
+      <div class="kv">
+        <dt>shipped as</dt><dd>two Docker images, one Helm chart</dd>
+        <dt>health</dt><dd>startup, readiness and liveness probes on <span class="m">/health</span></dd>
+        <dt>scale</dt><dd>Ray for parallel compute</dd>
+        <dt>observability</dt><dd>Prometheus instrumentation from day one</dd>
+      </div>
+      <h5>What transfers directly</h5>
+      <p>The API shape, hybrid multi-strategy retrieval, probe-driven self-healing, and the habit of <b>instrumenting a service before it needs debugging</b>.</p>
+      <div class="verdict warn"><p><b>Honestly:</b> local cluster, NodePort services, host-mounted dataset. A solo academic build, not a commercial production rollout. <b>What it proves is the pattern, not the scale.</b></p></div>
+    </div>
+
+    <div class="panel-src" id="p-cl-thesis">
+      <h4>The one idea, again</h4>
+      <div class="say"><p><b>A scope is a permission boundary and a personalization boundary at the same time.</b></p></div>
+      <h5>What follows from it</h5>
+      <ul>
+        <li><b>Permission before retrieval</b> — denied data is never fetched, so there is nothing to scrub</li>
+        <li><b>Personalization is the same code path</b> — no second system to keep in agreement</li>
+        <li><b>Reuse for staff and public is free</b> — a different scope set, not a different build</li>
+        <li><b>Erasure stays tractable</b> — every chunk carries a subject, so deletion is a filter away</li>
+      </ul>
+      <div class="verdict ok"><p>The test for year three: can a new person <b>change the embedding model, or add one tool, in their first week</b> — without reading the whole codebase and without a release freeze?</p></div>
+      <p style="margin-top:18px"><b>That is the foundation I want to help lay.</b></p>
+    </div>
+  </div>
+</section>
+
+<section class="slide title" data-section="Thank you" data-key="thanks"
+  data-budget="0.5 min">
+  <div style="display:flex; align-items:center; gap:5cqw; justify-content:center; width:100%;">
+
+    <svg viewBox="0 0 200 200" role="img" aria-label="A smiling face"
+         style="width:23cqw; height:auto; flex:none;">
+      <circle cx="100" cy="100" r="88" fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="6"/>
+      <circle cx="70"  cy="80" r="9.5" fill="var(--accent)"/>
+      <circle cx="130" cy="80" r="9.5" fill="var(--accent)"/>
+      <path d="M56 116 Q100 160 144 116" fill="none" stroke="var(--accent)"
+            stroke-width="9" stroke-linecap="round"/>
+    </svg>
+
+    <div style="text-align:left;">
+      <h1 style="font-size:9.5cqw; margin-bottom:1cqw;">Thank you</h1>
+      <div class="rule" style="margin-bottom:1.6cqw;"></div>
+      <div class="who" style="font-size:2.1cqw; line-height:1.55;">
+        <b style="color:var(--ink)">aojutiku@live.com</b>
+      </div>
+      <div class="mono" style="font-size:1.35cqw; color:var(--ink3); margin-top:1.8cqw; letter-spacing:.05em;">
+        Akintunde Ojutiku · AI Engineer
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div id="scrim"></div>
+<aside id="panel" role="dialog" aria-label="Detail">
+  <div class="ptop">
+    <span class="plabel" id="plabel">Detail</span>
+    <button class="pclose" id="pclose" aria-label="Close detail">✕</button>
+  </div>
+  <div id="pbody"></div>
+</aside>
+
+<div id="notes" aria-label="Speaker notes" aria-live="polite">
+  <div class="nhead">
+    <span class="warn">⚠ visible to the room — rehearsal only</span>
+    <span class="budget" id="nbudget"></span>
+    <span class="clock" id="nclock">00:00</span>
+  </div>
+  <div class="ntext" id="ntext"></div>
+</div>
+
+<div id="bar">
+  <button id="prev" aria-label="Previous">←</button>
+  <button id="next" aria-label="Next">→</button>
+  <button id="presbtn" class="live" aria-label="Open the private presenter window">P presenter</button>
+  <button id="notesbtn" aria-label="Toggle speaker notes">N notes</button>
+  <button id="timer" aria-label="Start or stop the timer">▶ timer</button>
+  <span id="sect"></span>
+  <span style="opacity:.7">· click any card for detail · O overview</span>
+  <span id="count"></span>
+</div>
+
+<div id="grid" role="dialog" aria-label="Overview"><h3>All slides</h3><div class="gw" id="gw"></div></div>
+
+<script>
+(function(){
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var i = 0, panelOpenBtn = null, pwin = null;
+  /* per-slide minute budgets and the cumulative target at the END of each slide */
+  var mins = slides.map(function(s){
+    var m = /([\d.]+)/.exec(s.getAttribute('data-budget') || '2');
+    return m ? parseFloat(m[1]) : 2;
+  });
+  var target = [], acc = 0;
+  mins.forEach(function(m){ acc += m; target.push(acc * 60000); });
+  var TOTAL = acc;
+  var prog = document.getElementById('prog'), sect = document.getElementById('sect'),
+      count = document.getElementById('count'), grid = document.getElementById('grid'),
+      gw = document.getElementById('gw'), panel = document.getElementById('panel'),
+      pbody = document.getElementById('pbody'), plabel = document.getElementById('plabel'),
+      scrim = document.getElementById('scrim'),
+      notes = document.getElementById('notes'), ntext = document.getElementById('ntext'),
+      nbudget = document.getElementById('nbudget'), nclock = document.getElementById('nclock');
+
+  /* ---------- panel ---------- */
+  function openPanel(id, label, btn){
+    var src = document.getElementById('p-' + id);
+    if (!src) return;
+    pbody.innerHTML = src.innerHTML;
+    pbody.scrollTop = 0;
+    plabel.textContent = label || 'Detail';
+    panel.classList.add('on'); scrim.classList.add('on');
+    if (panelOpenBtn) panelOpenBtn.classList.remove('open');
+    panelOpenBtn = btn || null;
+    if (panelOpenBtn) panelOpenBtn.classList.add('open');
+  }
+  function closePanel(){
+    panel.classList.remove('on'); scrim.classList.remove('on');
+    if (panelOpenBtn) panelOpenBtn.classList.remove('open');
+    panelOpenBtn = null;
+  }
+  document.getElementById('pclose').addEventListener('click', closePanel);
+  scrim.addEventListener('click', closePanel);
+  document.addEventListener('click', function(e){
+    if (e.target.closest('#pbody')) return;
+    var v = e.target.closest('[data-view]');
+    if (v){
+      e.preventDefault();
+      var host = v.closest('.slide');
+      [].forEach.call(host.querySelectorAll('.viewpane'), function(x){
+        x.classList.toggle('on', x.id === v.getAttribute('data-view'));
+      });
+      [].forEach.call(host.querySelectorAll('.viewtabs button'), function(b){
+        b.classList.toggle('on', b === v);
+      });
+      return;
+    }
+    var g = e.target.closest('[data-goto]');
+    if (g){ e.preventDefault(); window.goSection(g.getAttribute('data-goto')); return; }
+    var t = e.target.closest('[data-panel]');
+    if (!t) return;
+    e.preventDefault();
+    if (panelOpenBtn === t) { closePanel(); return; }
+    openPanel(t.getAttribute('data-panel'), t.getAttribute('data-label'), t);
+  });
+
+  /* ---------- speaker notes ---------- */
+  function paintNotes(){
+    var s = slides[i];
+    ntext.innerHTML = s.getAttribute('data-notes') || '<em>No notes for this slide.</em>';
+    nbudget.textContent = s.getAttribute('data-budget') || '';
+  }
+  function toggleNotes(){ notes.classList.toggle('on'); }
+  document.getElementById('notesbtn').addEventListener('click', toggleNotes);
+
+  /* ---------- timer ---------- */
+  var t0 = null, tick = null;
+  function fmt(ms){
+    if (ms < 0) ms = 0;
+    var s = Math.floor(ms/1000), m = Math.floor(s/60);
+    return String(m).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  }
+  function elapsed(){ return t0 ? Date.now() - t0 : 0; }
+  /* ahead / on / behind, judged against the cumulative target for the CURRENT slide */
+  function pace(){
+    if (!t0) return { state:'idle', text:'timer not started', delta:0 };
+    var e = elapsed(), due = target[i], d = e - due;
+    if (d < -45000) return { state:'ahead',  text:'ahead by ' + fmt(-d), delta:d };
+    if (d >  45000) return { state:'behind', text:'behind by ' + fmt(d), delta:d };
+    return { state:'on', text:'on pace', delta:d };
+  }
+  function toggleTimer(){
+    var btn = document.getElementById('timer');
+    if (tick){ clearInterval(tick); tick = null; btn.textContent = '▶ timer'; btn.classList.remove('live'); return; }
+    if (!t0) t0 = Date.now();
+    btn.classList.add('live');
+    var beat = function(){
+      var e = elapsed();
+      nclock.textContent = fmt(e);
+      btn.textContent = '❚❚ ' + fmt(e);
+      nclock.style.color = e > TOTAL*60000 ? 'var(--risk)'
+                        : (e > (TOTAL-4)*60000 ? 'var(--warn)' : 'var(--ink2)');
+      paintPresenter();
+    };
+    beat();
+    tick = setInterval(beat, 500);
+  }
+  function resetTimer(){
+    if (tick){ clearInterval(tick); tick = null; }
+    t0 = null; nclock.textContent = '00:00'; nclock.style.color = 'var(--ink2)';
+    var btn = document.getElementById('timer'); btn.textContent = '▶ timer'; btn.classList.remove('live');
+    paintPresenter();
+  }
+  document.getElementById('timer').addEventListener('click', toggleTimer);
+
+  /* ---------- private presenter window ----------
+     Opened with window.open from a user gesture, then written and updated
+     through a direct handle. No BroadcastChannel, no storage events — so this
+     works identically from a local file:// copy and from the published URL. */
+  var PRES_DOC = [
+    '<!doctype html><html><head><meta charset="utf-8"><title>Presenter — do not project</title>',
+    '<link rel="preconnect" href="https://fonts.googleapis.com">',
+    '<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@450;600&display=swap" rel="stylesheet">',
+    '<style>',
+    '*{box-sizing:border-box}',
+    'body{margin:0;background:#0B131B;color:#E9EFF5;font-family:"Source Sans 3",system-ui,sans-serif;',
+    '  display:flex;flex-direction:column;height:100vh;overflow:hidden}',
+    '.top{display:flex;align-items:center;gap:18px;padding:14px 22px;border-bottom:1px solid #263544;flex:none}',
+    '.pos{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.14em;color:#7C8EA0}',
+    '.pace{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.06em;padding:4px 11px;border-radius:5px}',
+    '.pace.idle{color:#7C8EA0;border:1px solid #263544}',
+    '.pace.on{color:#0B131B;background:#4FBE8B}',
+    '.pace.ahead{color:#0B131B;background:#6FA8DC}',
+    '.pace.behind{color:#0B131B;background:#E2807A}',
+    '.clock{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:40px;font-weight:600;',
+    '  font-variant-numeric:tabular-nums;line-height:1}',
+    '.due{font-family:"IBM Plex Mono",monospace;font-size:12px;color:#7C8EA0;letter-spacing:.06em}',
+    '.mid{flex:1;min-height:0;display:flex;flex-direction:column;padding:18px 26px 0;overflow:hidden}',
+    'h1{font-size:30px;margin:0 0 4px;line-height:1.1;font-weight:700}',
+    '.sec{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;',
+    '  text-transform:uppercase;color:#7C8EA0;margin-bottom:12px}',
+    '.notes{flex:1;min-height:0;overflow-y:auto;font-size:19px;line-height:1.62;padding-bottom:16px}',
+    '.notes b{color:#8FD9FF}.notes em{font-style:normal;color:#7C8EA0}',
+    '.notes .cue{display:block;color:#F0B95C;font-weight:600;border-left:3px solid #F0B95C;',
+    '  padding-left:13px;margin:13px 0}',
+    '.notes .cue::before{content:"SAY \\2192 ";font-family:"IBM Plex Mono",monospace;',
+    '  font-size:11px;letter-spacing:.16em;opacity:.85}',
+    '.next{flex:none;border-top:1px solid #263544;padding:11px 26px 9px;color:#9FB0BE;font-size:15px}',
+    '.next span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;',
+    '  text-transform:uppercase;color:#7C8EA0;margin-right:10px}',
+    '.bar{flex:none;display:flex;gap:9px;align-items:center;padding:10px 26px 14px;border-top:1px solid #263544}',
+    'button{font:inherit;font-size:15px;background:#18222C;color:#C9D6E2;border:1px solid #33475A;',
+    '  border-radius:7px;padding:8px 17px;cursor:pointer}',
+    'button:hover{border-color:#8FB4D9;color:#fff}',
+    'button.go{background:#2E6DA4;border-color:#2E6DA4;color:#fff}',
+    '.hint{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11px;color:#59697A}',
+    '</style></head><body>',
+    '<div class="top"><span class="pos" id="pos"></span><span class="pace idle" id="pace"></span>',
+    '  <span class="due" id="due"></span><span class="clock" id="clock">00:00</span></div>',
+    '<div class="mid"><div class="sec" id="sec"></div><h1 id="ttl"></h1><div class="notes" id="notes"></div></div>',
+    '<div class="next" id="next"></div>',
+    '<div class="bar"><button id="b-prev">← back</button><button id="b-next" class="go">next →</button>',
+    '  <button id="b-timer">▶ start</button><button id="b-reset">↻ reset</button>',
+    '  <span class="hint">arrow keys work here too</span></div>',
+    '</body></html>'
+  ].join('\n');
+
+  function openPresenter(){
+    if (pwin && !pwin.closed){ pwin.focus(); return; }
+    pwin = window.open('', 'deck_presenter',
+      'width=1000,height=760,menubar=no,toolbar=no,location=no,status=no');
+    if (!pwin){
+      var b = document.getElementById('presbtn');
+      b.textContent = 'popup blocked — allow popups'; b.classList.remove('live');
+      setTimeout(function(){ b.textContent = 'P presenter'; b.classList.add('live'); }, 4200);
+      return;
+    }
+    pwin.document.open(); pwin.document.write(PRES_DOC); pwin.document.close();
+    var d = pwin.document, wired = false;
+    var wire = function(){
+      if (wired || !d.getElementById('b-next')) return;
+      wired = true;
+      d.getElementById('b-prev').onclick  = function(){ show(i-1); pwin.focus(); };
+      d.getElementById('b-next').onclick  = function(){ show(i+1); pwin.focus(); };
+      d.getElementById('b-timer').onclick = function(){ toggleTimer(); paintPresenter(); };
+      d.getElementById('b-reset').onclick = function(){ resetTimer(); };
+      d.addEventListener('keydown', function(e){
+        if (e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); show(i+1); }
+        else if (e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); show(i-1); }
+        else if (e.key==='t'||e.key==='T'){ toggleTimer(); paintPresenter(); }
+      });
+      paintPresenter();
+    };
+    if (d.readyState === 'complete') wire(); else pwin.addEventListener('load', wire);
+    setTimeout(wire, 300);
+  }
+  function paintPresenter(){
+    if (!pwin || pwin.closed) return;
+    var d = pwin.document, g = function(id){ return d.getElementById(id); };
+    if (!g('pos')) return;
+    var s = slides[i], nx = slides[i+1];
+    g('pos').textContent = 'slide ' + (i+1) + ' / ' + slides.length
+      + '   ·   ' + (s.getAttribute('data-budget') || '');
+    g('sec').textContent = s.getAttribute('data-section') || '';
+    var h = s.querySelector('h1,h2');
+    g('ttl').textContent = h
+      ? h.innerHTML.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+      : '';
+    g('notes').innerHTML = s.getAttribute('data-notes') || '<em>No notes for this slide.</em>';
+    g('notes').scrollTop = 0;
+    g('clock').textContent = fmt(elapsed());
+    g('due').textContent = 'target by end of this slide ' + fmt(target[i])
+      + '  ·  whole talk ' + TOTAL + ' min';
+    var tb = g('b-timer');
+    if (tb) tb.textContent = tick ? '❚❚ pause' : (t0 ? '▶ resume' : '▶ start');
+    var pc = pace();
+    g('pace').className = 'pace ' + pc.state;
+    g('pace').textContent = pc.text;
+    var nh = nx && nx.querySelector('h1,h2');
+    g('next').innerHTML = nx
+      ? '<span>next</span>' + (nh ? nh.innerHTML.replace(/<br\s*\/?>/gi, ' ')
+          .replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() : '')
+      : '<span>next</span>— last slide, then questions —';
+  }
+  document.getElementById('presbtn').addEventListener('click', openPresenter);
+  window.addEventListener('beforeunload', function(){ if (pwin && !pwin.closed) pwin.close(); });
+
+  /* ---------- navigation ---------- */
+  function show(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s,k){ s.classList.toggle('on', k===i); });
+    closePanel();
+    paintNotes();
+    paintPresenter();
+    sect.textContent = slides[i].getAttribute('data-section') || '';
+    count.textContent = (i+1) + ' / ' + slides.length;
+    prog.style.width = ((i+1)/slides.length*100) + '%';
+    /* sandboxed artifact frames run on about:srcdoc, where replaceState throws.
+       The deep link is a convenience, never a requirement. */
+    try { history.replaceState(null,'','#'+(i+1)); } catch(e){}
+  }
+  window.goSlide = function(n){ show(n); };
+  window.goSection = function(name){
+    for (var k=0;k<slides.length;k++){
+      if ((slides[k].getAttribute('data-key')||'') === name){ show(k); return; }
+    }
+  };
+  document.getElementById('prev').addEventListener('click', function(){ show(i-1); });
+  document.getElementById('next').addEventListener('click', function(){ show(i+1); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    if (e.key==='Escape'){ if (panel.classList.contains('on')) closePanel(); else grid.classList.remove('on'); return; }
+    if (e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); show(i+1); }
+    else if (e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); show(i-1); }
+    else if (e.key==='Home'){ show(0); }
+    else if (e.key==='End'){ show(slides.length-1); }
+    else if (e.key==='o'||e.key==='O'){ grid.classList.toggle('on'); }
+    else if (e.key==='n'||e.key==='N'){ toggleNotes(); }
+    else if (e.key==='p'||e.key==='P'){ openPresenter(); }
+    else if (e.key==='t'||e.key==='T'){ toggleTimer(); }
+  });
+
+  slides.forEach(function(s,k){
+    var h = s.querySelector('h1,h2');
+    var d = document.createElement('div');
+    d.className='gi';
+    d.innerHTML = '<div class="n">'+String(k+1).padStart(2,'0')+' · '+(s.getAttribute('data-budget')||'')+'</div>'
+                + '<div class="t">'+(h?h.textContent:'')+'</div>';
+    d.addEventListener('click', function(){ grid.classList.remove('on'); show(k); });
+    gw.appendChild(d);
+  });
+
+  /* ---------- flow simulation ---------- */
+  var flow = document.getElementById('flow');
+  if (flow){
+    var nodes = [].slice.call(flow.querySelectorAll('.stage-node'));
+    var cap = document.getElementById('flowcap');
+    var stepLbl = document.getElementById('flowstep');
+    var step = 0, ftimer = null;
+
+    function paint(){
+      nodes.forEach(function(n,k){
+        n.classList.remove('past','now','future');
+        n.classList.add(k < step ? 'past' : (k === step ? 'now' : 'future'));
+      });
+      var n = nodes[step];
+      cap.innerHTML = n ? (n.getAttribute('data-caption') || '') : '';
+      stepLbl.textContent = (step+1) + ' / ' + nodes.length;
+    }
+    function go(d){ fstop(); step = Math.max(0, Math.min(nodes.length-1, step + d)); paint(); }
+    function fstop(){ if (ftimer){ clearInterval(ftimer); ftimer = null;
+      document.getElementById('flowplay').textContent = '▶ Play'; } }
+    function fplay(){
+      if (ftimer){ fstop(); return; }
+      if (step >= nodes.length-1) step = -1;
+      document.getElementById('flowplay').textContent = '❚❚ Pause';
+      ftimer = setInterval(function(){
+        if (step >= nodes.length-1){ fstop(); return; }
+        step++; paint();
+      }, 1700);
+    }
+    document.getElementById('flowprev').addEventListener('click', function(){ go(-1); });
+    document.getElementById('flownext').addEventListener('click', function(){ go(1); });
+    document.getElementById('flowplay').addEventListener('click', fplay);
+    document.getElementById('flowreset').addEventListener('click', function(){ fstop(); step=0; paint(); });
+    nodes.forEach(function(n,k){
+      n.addEventListener('click', function(){ fstop(); step=k; paint(); });
+    });
+    paint();
+  }
+
+  var start = NaN;
+  try { start = parseInt((location.hash||'').replace('#',''),10); } catch(e){}
+  show(isNaN(start)?0:start-1);
+})();
+</script>
+</body>
+</html>
