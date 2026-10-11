@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI-as-a-Service Layer — Akintunde Ojutiku</title>
+<meta name="description" content="An app-agnostic AI platform for universities: permission-scoped retrieval, tools over MCP, model routing, and answers that cite their source or refuse." />
+<link rel="stylesheet" href="../../assets/css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="brand" href="../../index.html">Akintunde Ojutiku</a>
+    <div class="links">
+      <a href="../../index.html">About</a>
+      <a href="../../projects.html">Projects</a>
+      <a href="../../index.html#experience">Experience</a>
+      <a href="../../assets/cv/Ojutiku_CV.pdf" target="_blank" rel="noopener">CV (PDF)</a>
+    </div>
+  </div>
+</nav>
+
+<header class="project-header">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="../../projects.html">Projects</a> / AI-as-a-Service Layer</div>
+    <h1>AI-as-a-Service Layer</h1>
+    <p class="tagline">An app-agnostic AI platform for universities · Independent project · 08.2026</p>
+    <div class="tag-row" style="margin-bottom:16px;">
+      <span class="tag">Python</span><span class="tag">FastAPI</span><span class="tag">Pydantic</span><span class="tag">Hybrid retrieval</span><span class="tag">MCP</span><span class="tag">Evaluation</span>
+    </div>
+    <div class="button-row">
+      <a class="btn primary" href="media/architecture-deck.html" target="_blank" rel="noopener">Open the architecture deck ↗</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="cs">
+  <div class="wrap">
+    <h2>The idea</h2>
+    <p class="lead">Universities don't need another AI portal. They need AI capabilities inside the tools students already use: the student portal, the LMS and the mobile app.</p>
+    <p>The AI-as-a-Service Layer is one backend that any of those apps can call. It offers five capabilities through a single contract: ask, find, plan, recommend and assess. Before a model sees anything, the layer decides what this user may see. Before an answer leaves, it checks every claim against evidence.</p>
+    <p>The design rests on one decision: <strong>a scope is a permission boundary and a personalisation boundary at the same time.</strong> The component that decides what a student may see has, in deciding that, already decided what makes the answer personal. There is no second system to keep in agreement, so there is no gap between them for a leak to live in.</p>
+  </div>
+</section>
+
+<section class="cs">
+  <div class="wrap">
+    <h2>One request, end to end</h2>
+    <figure data-arch></figure>
+    <noscript><p class="note">The animated walk-through needs JavaScript. The <a href="media/architecture-deck.html">architecture deck</a> shows the same design.</p></noscript>
+  </div>
+</section>
+
+<section class="cs" id="demo">
+  <div class="wrap">
+    <h2>See it run</h2>
+    <p>Real output from the prototype. It runs fully offline: the model provider and the embedder are deterministic stand-ins behind the same interfaces the real ones use, so the same request always produces the same result and the tests check behaviour, not luck.</p>
+    <div class="tabs" role="tablist" aria-label="Prototype demos"><button class="tab" role="tab" id="tab-trace" aria-controls="panel-trace" aria-selected="true" tabindex="0">The trace</button><button class="tab" role="tab" id="tab-who" aria-controls="panel-who" aria-selected="false" tabindex="-1">Who sees what</button><button class="tab" role="tab" id="tab-refuse" aria-controls="panel-refuse" aria-selected="false" tabindex="-1">Cite or refuse</button><button class="tab" role="tab" id="tab-replay" aria-controls="panel-replay" aria-selected="false" tabindex="-1">Replay</button><button class="tab" role="tab" id="tab-golden" aria-controls="panel-golden" aria-selected="false" tabindex="-1">Golden set</button></div><div class="tabpanel" role="tabpanel" id="panel-trace" aria-labelledby="tab-trace"><p>A student asks what to take next semester. Every stage is timed and costed: the gate, classification, retrieval across scopes, three tool calls, the course planner, the eligibility check, synthesis and the groundedness gate.</p><pre class="term"><span class="cmd">$ python -m ai_layer.demo</span>
+trace 3482b6e05cd146e9 · plan · s-1001 · 4.9 ms · €0.003369 · <span class="ok">answered</span>
+<span class="g">⛔</span>  policy_gate                   0.01ms |█                                             |
+<span class="g">▸</span>  classify                      0.06ms |█                                             |
+<span class="g">◆</span>  classify_intent               0.04ms |█                                             |
+<span class="g">▸</span>  resolve_context               2.68ms |    █████████████████████████                 |
+<span class="g">⌕</span>  retrieve                      2.63ms |    ████████████████████████                  |
+<span class="g">▸</span>  tool_balance                  0.08ms |                                █             |
+<span class="g">⚙</span>  ects_balance                  0.06ms |                                █             |
+<span class="g">▸</span>  tool_catalogue                0.08ms |                                 █            |
+<span class="g">⚙</span>  catalogue_lookup              0.05ms |                                 █            |
+<span class="g">▸</span>  tool_window                   0.03ms |                                  █           |
+<span class="g">⚙</span>  registration_window           0.02ms |                                  █           |
+<span class="g">▸</span>  candidates                    0.06ms |                                   █          |
+<span class="g">▸</span>  choose_courses                0.06ms |                                    █         |
+<span class="g">⚙</span>  check_prerequisites           0.04ms |                                    █         |
+<span class="g">▸</span>  confirm_eligibility           0.08ms |                                    █         |
+<span class="g">⚙</span>  eligibility                   0.06ms |                                     █        |
+<span class="g">▸</span>  synthesize                    0.11ms |                                     █        |
+<span class="g">◆</span>  synthesize_long               0.04ms |                                      █       |
+<span class="g">▸</span>  groundedness                  0.76ms |                                      ███████ |
+<span class="g">⛔</span>  groundedness                  0.74ms |                                      ██████  |
+
+status      : <span class="ok">answered</span>
+answer      : You have 24 ECTS passed and 96 remaining of 120. For 2026W you can register
+              DE110 (Wissenschaftliches Arbeiten, 3 ECTS), ETH150 (Ethics and Regulation of
+              AI, 3 ECTS), AI310 (Federated and Privacy-Preserving Learning, 6 ECTS), AI330
+              (Reinforcement Learning, 6 ECTS), HCI220 (Human-Centred AI Systems, 3 ECTS) —
+              21 ECTS in total. AI320 is not in the list: clashes with AI310 in slot WED-13.
+              …
+citations   : course:DE110, reg:reg-overload
+tool calls  : ects_balance, catalogue_lookup, registration_window, check_prerequisites, eligibility
+context     : 697 tokens · model fake:frontier-eu (frontier) · €0.003369 · 5 ms</pre></div><div class="tabpanel" role="tabpanel" id="panel-who" aria-labelledby="tab-who" hidden><p>The same layer answers ten different callers. Students in different programmes get different answers, a question about another student is refused, and a public caller or an unknown token is denied before any orchestration starts.</p><pre class="term"><span class="cmd">$ python -m ai_layer.demo --scenarios</span>
+principal   verb      status    outcome
+<span class="dim">----------------------------------------------------------------------------------------------------</span>
+tok-lena    plan      <span class="ok">answered</span>  What should I take next semester?        You have 24 ECTS passed and 96 remaining of 120. For 2026W you c
+tok-tomas   plan      <span class="ok">answered</span>  What should I take next semester?        You have 6 ECTS passed and 114 remaining of 120. For 2026W you c
+tok-lena    ask       <span class="ok">answered</span>  When does registration close?            Registration windows — Course registration for the winter term 2
+tok-lena    ask       <span class="ok">answered</span>  Who works on federated learning here?    Prof. Lindner — privacy-preserving ML — Group works on federated
+tok-lena    ask       <span class="ref">refused</span>   Why did Lena get a higher grade than m   nothing in scope answers this question (best match 0.00 &lt; 0.34)
+tok-lena    ask       <span class="ok">answered</span>  Wie reiche ich eine Studienplanänderun   Studienplanänderung — Eine Studienplanänderung muss vor Ende der
+tok-sara    ask       <span class="ref">refused</span>   Tell me about the deep learning course   nothing in scope answers this question (best match 0.25 &lt; 0.34)
+tok-public  ask       <span class="ok">answered</span>  What programmes do you offer?            About the university — The university is an interdisciplinary in
+tok-public  plan      <span class="den">denied</span>    Plan my semester                         role public may not use the plan capability
+tok-nobody  ask       <span class="den">denied</span>    Anything at all                          unknown or missing token</pre></div><div class="tabpanel" role="tabpanel" id="panel-refuse" aria-labelledby="tab-refuse" hidden><p>Here the model is forced to state a credit figure that no tool produced. The groundedness gate catches it and refuses the whole answer instead of quietly trimming the bad sentence.</p><pre class="term"><span class="cmd">$ python -m ai_layer.demo --hallucinate</span>
+trace f95693cf2bae4623 · plan · s-1001 · 5.0 ms · €0.003579 · <span class="ref">refused</span>
+<span class="g">⛔</span>  policy_gate                   0.01ms |█                                             |
+<span class="g">▸</span>  classify                      0.05ms |█                                             |
+<span class="g">◆</span>  classify_intent               0.04ms |█                                             |
+<span class="g">▸</span>  resolve_context               3.61ms |   █████████████████████████████████          |
+<span class="g">⌕</span>  retrieve                      3.58ms |   ████████████████████████████████           |
+<span class="g">▸</span>  tool_balance                  0.08ms |                        █                     |
+<span class="g">⚙</span>  ects_balance                  0.06ms |                        █                     |
+<span class="g">▸</span>  tool_catalogue                0.16ms |                          █                   |
+<span class="g">⚙</span>  catalogue_lookup              0.08ms |                          █                   |
+<span class="g">▸</span>  tool_window                   0.06ms |                           █                  |
+<span class="g">⚙</span>  registration_window           0.04ms |                           █                  |
+<span class="g">▸</span>  candidates                    0.06ms |                                      █       |
+<span class="g">▸</span>  choose_courses                0.07ms |                                      █       |
+<span class="g">⚙</span>  check_prerequisites           0.04ms |                                      █       |
+<span class="g">▸</span>  confirm_eligibility           0.11ms |                                       █      |
+<span class="g">⚙</span>  eligibility                   0.09ms |                                       █      |
+<span class="g">▸</span>  synthesize                    0.13ms |                                        █     |
+<span class="g">◆</span>  synthesize_long               0.04ms |                                        █     |
+<span class="g">▸</span>  groundedness                  0.46ms |                                         ████ |
+<span class="ref"><span class="g">⛔</span>! groundedness                  0.45ms |                                         ████ |</span>
+<span class="ref">     └─ a computed claim was not backed by a tool result</span>
+
+status      : <span class="ref">refused</span>
+<span class="ref">refused</span>     : a computed claim was not backed by a tool result
+citations   : —
+tool calls  : ects_balance, catalogue_lookup, registration_window, check_prerequisites, eligibility
+context     : 697 tokens · model fake:frontier-eu (frontier) · €0.003579 · 5 ms</pre></div><div class="tabpanel" role="tabpanel" id="panel-replay" aria-labelledby="tab-replay" hidden><p>A recorded trace replays to the identical answer. That is how a production incident gets debugged offline, without guessing.</p><pre class="term"><span class="cmd">$ python -m ai_layer.demo --replay</span>
+trace ab2b3006a70949b5 · plan · s-1001 · 5.0 ms · €0.003369 · <span class="ok">answered</span>
+<span class="dim">… the same 20 traced stages as the original run …</span>
+status      : <span class="ok">answered</span>
+citations   : course:DE110, reg:reg-overload
+tool calls  : ects_balance, catalogue_lookup, registration_window, check_prerequisites, eligibility
+replayed    : <span class="ok">answered</span> · identical answer: True</pre></div><div class="tabpanel" role="tabpanel" id="panel-golden" aria-labelledby="tab-golden" hidden><p>Sixteen cases with expected outcomes, including four that must be refused. It runs in CI, and a lost refusal or a lost citation blocks the merge.</p><pre class="term"><span class="cmd">$ python -m ai_layer.evals.run</span>
+case                   expect    got       result
+<span class="dim">--------------------------------------------------------------------------------------------</span>
+plan-lena              <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+plan-tomas             <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+ask-window             <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+ask-overload           <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+ask-research           <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+ask-german             <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+ask-other-student      <span class="ref">refused</span>   <span class="ref">refused</span>   pass
+ask-absent             <span class="ref">refused</span>   <span class="ref">refused</span>   pass
+ask-wrong-programme    <span class="ref">refused</span>   <span class="ref">refused</span>   pass
+public-about           <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+public-plan            <span class="den">denied</span>    <span class="den">denied</span>    pass
+public-personal        <span class="ref">refused</span>   <span class="ref">refused</span>   pass
+no-token               <span class="den">denied</span>    <span class="den">denied</span>    pass
+wrong-purpose          <span class="den">denied</span>    <span class="den">denied</span>    pass
+staff-plan             <span class="den">denied</span>    <span class="den">denied</span>    pass
+find-privacy           <span class="ok">answered</span>  <span class="ok">answered</span>  pass
+<span class="dim">--------------------------------------------------------------------------------------------</span>
+16/16 passed · refusals 4/4 · p50 2.0 ms · €0.000443 per request</pre></div>
+    <p class="note" style="margin-top:12px;">75 tests pass in about a second, and the same 75 pass again with every tool call going over a real MCP stdio server.</p>
+  </div>
+</section>
+
+<section class="cs">
+  <div class="wrap">
+    <h2>Design decisions</h2>
+    <dl class="decisions">
+      <div><dt>Embed what is stable, call what is volatile</dt>
+        <dd>The catalogue, regulations and research profiles are indexed. Student records are never embedded; tools read them at request time. A transcript cannot leak through a vector, and erasing a person is a single call.</dd></div>
+      <div><dt>Permissions travel inside the query</dt>
+        <dd>The access filter is part of the SQL that retrieves chunks, not a step applied afterwards. Denied data is never fetched, so there is nothing to scrub.</dd></div>
+      <div><dt>The planner is not the model</dt>
+        <dd>Course recommendations come from a deterministic search over prerequisites, timetable clashes and credit limits, and every rejection keeps its reason. A weaker model writes a worse sentence, never a wrong registration.</dd></div>
+      <div><dt>The orchestrator is a graph, not a loop</dt>
+        <dd>Each capability compiles to a typed plan with declared dependencies, timeouts, budgets and a failure policy. Because the plan is data, it can be printed, reviewed and unit-tested.</dd></div>
+      <div><dt>Tools over MCP, checked on the server</dt>
+        <dd>The same tool registry runs in-process or behind a real MCP server. Permission is enforced server-side, so a tool stays safe even if the code calling it has a bug.</dd></div>
+      <div><dt>Boring tools, sized honestly</dt>
+        <dd>FastAPI, Pydantic and one PostgreSQL store with pgvector hold vectors, keyword search, access lists and traces together. It is built for one engineer to operate, with EU-hosted inference.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="cs">
+  <div class="wrap">
+    <h2>What is real, and what is a stand-in</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Component</th><th>Implemented</th><th>Stand-in in the prototype</th></tr></thead>
+        <tbody>
+          <tr><td>Capability API</td><td>Five verbs, one contract; the status code carries the decision</td><td>None</td></tr>
+          <tr><td>Policy gate</td><td>Identity, purpose binding, verb allow-list, scope grants, fails closed</td><td>Static token table instead of OIDC</td></tr>
+          <tr><td>Context resolver</td><td>Five scopes, one token budget, access checked before retrieval</td><td>Token count estimated from length</td></tr>
+          <tr><td>Retrieval</td><td>BM25 and vectors fused with RRF (k = 60), then reranked; access filter inside the SQL</td><td>SQLite FTS5 instead of PostgreSQL; hashed embedder; lexical reranker</td></tr>
+          <tr><td>Tools</td><td>Credit arithmetic, prerequisites, clashes, eligibility; a real MCP stdio server</td><td>Synthetic student records</td></tr>
+          <tr><td>Orchestrator</td><td>Typed step graph, parallel waves, timeouts, deadlines, budgets, trace and replay</td><td>None</td></tr>
+          <tr><td>Model gateway</td><td>Routing by task to a model tier, cost accounting, provider interface</td><td>Deterministic fake provider; LiteLLM adapter written but not exercised</td></tr>
+          <tr><td>Groundedness</td><td>Citation check, numbers checked against tool output, lexical entailment, refuse rather than trim</td><td>No entailment model or LLM judge yet</td></tr>
+          <tr><td>Evaluation</td><td>Golden set with must-call, must-cite and must-plan assertions; CI exit code</td><td>16 cases</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Each stand-in is one swap from production: SQLite to PostgreSQL with pgvector, the hashed embedder to an EU-hosted embedding model, the lexical reranker to a multilingual cross-encoder, the fake provider to LiteLLM, and the token table to OIDC.</p>
+  </div>
+</section>
+
+<section class="cs">
+  <div class="wrap">
+    <h2>What this prototype does not prove yet</h2>
+    <ul class="limits">
+      <li><strong>Retrieval quality.</strong> A hashed embedder and a lexical reranker exercise the plumbing, not the semantics. Measuring recall on a real corpus needs the real models, including German compound-word handling, which SQLite FTS5 does not do.</li>
+      <li><strong>Latency and cost under load.</strong> Everything runs in milliseconds because the model is a stand-in. The numbers to trust are the token counts and routing decisions, not the wall-clock times.</li>
+      <li><strong>The data platform.</strong> Ingestion is a corpus builder over synthetic records. What a real university platform exposes, whether a catalogue, change capture or only a query endpoint, is the one dependency that would change the ingestion design.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    © <span id="year"></span> Akintunde Ojutiku · <a href="mailto:aojutiku@live.com">aojutiku@live.com</a> · Built with plain HTML, CSS and JS, hosted on GitHub Pages
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/arch.js"></script>
+<script>
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(t, focus) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute("aria-selected", on); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+    });
+    if (focus) t.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { select(t); });
+    t.addEventListener("keydown", function (e) {
+      var k = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (k) { e.preventDefault(); select(tabs[(i + k + tabs.length) % tabs.length], true); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
