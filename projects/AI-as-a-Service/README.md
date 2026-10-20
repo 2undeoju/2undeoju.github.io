@@ -1,15 +1,18 @@
 ## Overview
 
-Most universities don't need another AI portal. They need AI features inside the tools
-students already use: the student portal, the learning platform and the mobile app.
+Every AI application shouldn’t have to reinvent the same infrastructure, security controls
+and reliability checks. I built an **AI-as-a-Service Layer** to make AI capabilities 
+reusable across applications, so organisations can integrate AI into the tools their teams 
+already use, rather than building a separate AI system for every use case.
 
-The **AI-as-a-Service Layer** is one backend that all of those apps can call. It offers
-five capabilities through a single API: **ask, find, plan, recommend and assess**.
-Before the AI sees any data, the layer checks what this user is allowed to see. Before
-an answer goes back, it checks that every claim is backed by a source.
+The prototype was tested in a university scenario using synthetic data, but the 
+architecture is **application-agnostic**. The same backend can serve different applications 
+through a shared, consistent interface.
 
-The case study is a university platform with synthetic student data. The design itself
-is app-agnostic.
+The layer exposes five capabilities through one API: **ask, find, plan, recommend and assess**. 
+Permissions are decided before the model sees any data, and a groundedness check means every 
+answer either cites its source or is refused. The goal is simple: make AI easier to integrate, 
+safer to use, and more consistent to maintain across an organisation.
 
 ## How it works
 
